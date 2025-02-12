@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from werkzeug.security import check_password_hash
 from backend.database import SessionLocal
 from backend.database.models import User
-from backend.config import Config
+from backend.config.config import Config
 
 app = Flask(__name__)
 

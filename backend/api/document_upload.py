@@ -1,7 +1,7 @@
 import os
 from flask import request, jsonify
 from backend.database import SessionLocal
-from backend.config import Config
+from backend.config.config import Config
 from backend.database.models import Document
 
 UPLOAD_FOLDER = Config.UPLOAD_FOLDER

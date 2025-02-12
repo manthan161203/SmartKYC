@@ -1,5 +1,5 @@
 from flask import Flask
-from backend.config import Config
+from backend.config.config import Config
 from backend.api.user_registration import app as registration_app
 from backend.api.user_login import app as login_app
 
