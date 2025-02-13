@@ -1,16 +1,16 @@
 from logging.config import fileConfig
+from sqlalchemy import engine_from_config, pool
+from sqlalchemy_utils import create_database, database_exists
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-from sqlalchemy_utils import database_exists, create_database
 from alembic import context
-from backend.database.models import Base
 
+from backend.config.config import Config
+from backend.database.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
-
+config.set_main_option('sqlalchemy.url',Config.DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -20,8 +20,10 @@ if config.config_file_name is not None:
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
-target_metadata = Base.metadata
+# target_metadata = mymodel.Base.metadata
 # target_metadata = None
+
+target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -65,13 +67,13 @@ def run_migrations_online() -> None:
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
-    
+
     if not database_exists(connectable.url):
         create_database(connectable.url)
         print(f"Database {connectable.url.database} created successfully!")
     else:
         print(f"Database {connectable.url.database} already exists.")
-        
+
     with connectable.connect() as connection:
         context.configure(
             connection=connection, target_metadata=target_metadata

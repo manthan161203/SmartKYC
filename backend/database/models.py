@@ -1,8 +1,12 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, MetaData, Enum
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Enum, MetaData, UniqueConstraint
 from sqlalchemy.orm import relationship
-from datetime import datetime, timezone
 from sqlalchemy.ext.declarative import declarative_base
+
 from enum import Enum as PyEnum
+from datetime import datetime, timezone
+
+metadata = MetaData()
+Base = declarative_base(metadata=metadata)
 
 class DocumentStatus(PyEnum):
     NOT_VERIFIED = "not_verified"
@@ -14,9 +18,11 @@ class OTPStatus(PyEnum):
     VERIFIED = "verified"
     EXPIRED = "expired"
 
-metadata = MetaData()
-
-Base = declarative_base(metadata=metadata)
+class DocumentType(PyEnum):
+    AADHAAR = "aadhaar"
+    PAN = "pan"
+    PASSPORT = "passport"
+    ELECTION = "election"
 
 class User(Base):
     __tablename__ = "users"
@@ -31,27 +37,32 @@ class User(Base):
     email = Column(String(100), unique=True, index=True)
     phone = Column(String(20), unique=True, index=True)
     password = Column(String(255))
-    
-    is_document_verified = Column(Enum(DocumentStatus), default=DocumentStatus.NOT_VERIFIED)
-    
-    otp_sent = Column(Enum(OTPStatus), default=OTPStatus.SENT)
-    otp_verified = Column(Enum(OTPStatus), default=OTPStatus.SENT)
+
+    is_document_verified = Column(Enum(DocumentStatus), default=DocumentStatus.NOT_VERIFIED.value)
+
+    otp_sent = Column(Enum(OTPStatus), default=OTPStatus.SENT.value)
+    otp_verified = Column(Enum(OTPStatus), default=OTPStatus.SENT.value)
     otp = Column(String(10), nullable=True)
     otp_expiry = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     address = Column(String(255), nullable=True)
 
-    aadhaar_card_number = Column(String(20), nullable=True)
-    pan_card_number = Column(String(20), nullable=True)
+    aadhaar_card_number = Column(String(20), unique=True, nullable=True)
+    pan_card_number = Column(String(20), unique=True, nullable=True)
     profile_picture = Column(String(255), nullable=True)
-    
+
     aadhaar_verified = Column(Boolean, default=False)
     pan_verified = Column(Boolean, default=False)
-    
-    documents = relationship("Document", back_populates="user")
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
+    documents = relationship("Document", back_populates="user", cascade="all, delete")
+
+    __table_args__ = (UniqueConstraint('otp', 'otp_expiry', name='unique_otp_expiry'),)
 
     def __repr__(self):
-        return f"User(id={self.id}, username={self.username}, email={self.email})"
+        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
 
 class Document(Base):
     __tablename__ = "documents"
@@ -59,12 +70,15 @@ class Document(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     
-    document_type = Column(Enum(DocumentStatus), default=DocumentStatus.PENDING)
+    document_type = Column(Enum(DocumentType), default=DocumentType.AADHAAR.value)
     document_image_path = Column(String(255))
     
-    is_verified = Column(Enum(DocumentStatus), default=DocumentStatus.NOT_VERIFIED)
-    
+    is_verified = Column(Enum(DocumentStatus), default=DocumentStatus.NOT_VERIFIED.value)
+
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
     user = relationship("User", back_populates="documents")
 
     def __repr__(self):
-        return f"Document(id={self.id}, user_id={self.user_id}, document_type={self.document_type})"
+        return f"<Document(id={self.id}, user_id={self.user_id}, document_type='{self.document_type}')>"
