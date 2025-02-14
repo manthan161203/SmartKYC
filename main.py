@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI
-from backend.database.database import get_db
+from backend.database.database import init_db
 from backend.routes import register
 
 logging.basicConfig(level=logging.INFO)
@@ -10,7 +10,7 @@ app = FastAPI()
 
 logger.info("FastAPI app has started.")
 
-get_db()
+init_db()
 
 app.include_router(register.router)
 

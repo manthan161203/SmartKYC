@@ -1,10 +1,11 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, DateTime, Enum, func
+from sqlalchemy.orm import relationship, Session
 from backend.database import Base
-from backend.database.enums import DocumentStatus, OTPStatus
+from backend.database.enums import DocumentStatus, OTPStatus, VerificationStatus
 from datetime import datetime, timezone
+import re
+import random
 
-# User model representing a user in the KYC system.
 class User(Base):
     __tablename__ = "users"
     
@@ -17,9 +18,7 @@ class User(Base):
     email = Column(String(100), unique=True, index=True)
     phone = Column(String(20), unique=True, index=True)
     password = Column(String(255))
-    is_document_verified = Column(Enum(DocumentStatus), default=DocumentStatus.NOT_VERIFIED.value)
     
-    # OTP status for sent and verified, defaults to 'SENT'
     otp_sent = Column(Enum(OTPStatus), default=OTPStatus.SENT.value)
     otp_verified = Column(Enum(OTPStatus), default=OTPStatus.SENT.value)
     otp = Column(String(10), nullable=True)
@@ -29,15 +28,46 @@ class User(Base):
     aadhaar_card_number = Column(String(20), unique=True, nullable=True)
     pan_card_number = Column(String(20), unique=True, nullable=True)
     profile_picture = Column(String(255), nullable=True)
-    aadhaar_verified = Column(Boolean, default=False)
-    pan_verified = Column(Boolean, default=False)
+    aadhaar_verified = Column(Enum(VerificationStatus), default=VerificationStatus.NOT_VERIFIED.value)
+    pan_verified = Column(Enum(VerificationStatus), default=VerificationStatus.NOT_VERIFIED.value)
     
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
-    # Relationship with the Document model. A user can have multiple documents.
     documents = relationship("Document", back_populates="user", cascade="all, delete")
 
     def __repr__(self):
-        # Custom string representation of the Document instance
         return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
+    
+    @staticmethod
+    def validate_phone(phone: str) -> bool:
+        pattern = re.compile(r"^\+?[1-9]\d{1,14}$")
+        return bool(pattern.match(phone))
+
+    @staticmethod
+    def validate_password(password: str) -> bool:
+        if len(password) < 8:
+            return False
+        if not any(char.isdigit() for char in password):
+            return False
+        if not any(char.isupper() for char in password):
+            return False
+        if not any(char.islower() for char in password):
+            return False
+        return True
+
+    def generate_suggested_username(db: Session, first_name: str, last_name: str) -> str:
+        base_username = f"{first_name.lower()}.{last_name.lower()}"
+        
+        existing_user = db.query(User).filter(func.lower(User.username) == base_username).first()
+
+        if not existing_user:
+            return base_username
+        
+        while True:
+            random_number = random.randint(1000, 9999)
+            new_username = f"{base_username}{random_number}"
+            
+            existing_user = db.query(User).filter(func.lower(User.username) == new_username).first()
+            if not existing_user:
+                return new_username
