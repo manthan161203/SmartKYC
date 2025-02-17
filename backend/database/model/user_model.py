@@ -19,8 +19,8 @@ class User(Base):
     phone = Column(String(20), unique=True, index=True)
     password = Column(String(255))
     
-    otp_sent = Column(Enum(OTPStatus), default=OTPStatus.SENT.value)
-    otp_verified = Column(Enum(OTPStatus), default=OTPStatus.SENT.value)
+    otp_sent = Column(Enum(OTPStatus), default=OTPStatus.NOT_SENT.value)
+    otp_verified = Column(Enum(OTPStatus), default=OTPStatus.NOT_VERIFIED.value)
     otp = Column(String(10), nullable=True)
     otp_expiry = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     

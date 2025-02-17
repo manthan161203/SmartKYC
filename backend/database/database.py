@@ -1,5 +1,6 @@
 import logging
 from sqlalchemy import create_engine
+from sqlalchemy.inspection import inspect
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_utils import database_exists, create_database
@@ -32,12 +33,17 @@ def init_db():
             logger.info(f"Database '{db_name}' does not exist. Creating...")
             create_database(engine.url)
             logger.info(f"Database '{db_name}' created successfully!")
-        else:
-            logger.info(f"Database '{db_name}' already exists.")
 
-        logger.info("Creating tables...")
-        Base.metadata.create_all(bind=engine)
-        logger.info("Tables created successfully!")
+        # Check if tables already exist
+        inspector = inspect(engine)
+        existing_tables = inspector.get_table_names()
+
+        if not existing_tables:
+            logger.info("No tables found. Creating tables...")
+            Base.metadata.create_all(bind=engine)
+            logger.info("Tables created successfully!")
+        else:
+            logger.info("Tables already exist. Skipping table creation.")
 
     except SQLAlchemyError as e:
         logger.error(f"SQLAlchemyError: Error occurred during DB initialization: {e}")
@@ -45,7 +51,7 @@ def init_db():
     except Exception as e:
         logger.error(f"Unexpected error during DB initialization: {e}")
         raise
-
+    
 def get_db():
     db = SessionLocal()
     try:

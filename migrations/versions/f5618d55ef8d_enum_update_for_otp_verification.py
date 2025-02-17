@@ -1,19 +1,18 @@
-"""Initial Migration
+"""enum update for OTP verification
 
-Revision ID: d95e8c547be9
+Revision ID: f5618d55ef8d
 Revises: 
-Create Date: 2025-02-13 08:29:59.134388
+Create Date: 2025-02-17 15:42:16.077648
 
 """
 from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-import sqlalchemy_utils as su
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'd95e8c547be9'
+revision: str = 'f5618d55ef8d'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -30,22 +29,20 @@ def upgrade() -> None:
     sa.Column('email', sa.String(length=100), nullable=True),
     sa.Column('phone', sa.String(length=20), nullable=True),
     sa.Column('password', sa.String(length=255), nullable=True),
-    sa.Column('is_document_verified', sa.Enum('NOT_VERIFIED', 'VERIFIED', 'PENDING', name='documentstatus'), nullable=True),
-    sa.Column('otp_sent', sa.Enum('SENT', 'VERIFIED', 'EXPIRED', name='otpstatus'), nullable=True),
-    sa.Column('otp_verified', sa.Enum('SENT', 'VERIFIED', 'EXPIRED', name='otpstatus'), nullable=True),
+    sa.Column('otp_sent', sa.Enum('NOT_SENT', 'SENT', 'VERIFIED', 'NOT_VERIFIED', 'EXPIRED', name='otpstatus'), nullable=True),
+    sa.Column('otp_verified', sa.Enum('NOT_SENT', 'SENT', 'VERIFIED', 'NOT_VERIFIED', 'EXPIRED', name='otpstatus'), nullable=True),
     sa.Column('otp', sa.String(length=10), nullable=True),
     sa.Column('otp_expiry', sa.DateTime(), nullable=True),
     sa.Column('address', sa.String(length=255), nullable=True),
     sa.Column('aadhaar_card_number', sa.String(length=20), nullable=True),
     sa.Column('pan_card_number', sa.String(length=20), nullable=True),
     sa.Column('profile_picture', sa.String(length=255), nullable=True),
-    sa.Column('aadhaar_verified', sa.Boolean(), nullable=True),
-    sa.Column('pan_verified', sa.Boolean(), nullable=True),
+    sa.Column('aadhaar_verified', sa.Enum('NOT_VERIFIED', 'VERIFIED', 'PENDING', 'REJECTED', name='verificationstatus'), nullable=True),
+    sa.Column('pan_verified', sa.Enum('NOT_VERIFIED', 'VERIFIED', 'PENDING', 'REJECTED', name='verificationstatus'), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('aadhaar_card_number'),
-    sa.UniqueConstraint('otp', 'otp_expiry', name='unique_otp_expiry'),
     sa.UniqueConstraint('pan_card_number')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
@@ -57,9 +54,8 @@ def upgrade() -> None:
     op.create_table('documents',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=True),
-    sa.Column('document_type', sa.Enum('AADHAAR', 'PAN', 'PASSPORT', 'ELECTION', name='documenttype'), nullable=True),
-    sa.Column('document_image_path', sa.String(length=255), nullable=True),
-    sa.Column('is_verified', sa.Enum('NOT_VERIFIED', 'VERIFIED', 'PENDING', name='documentstatus'), nullable=True),
+    sa.Column('document_type', sa.Enum('AADHAAR', 'PAN', 'PASSPORT', 'ELECTION', name='documenttype'), nullable=False),
+    sa.Column('document_image_path', sa.String(length=255), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),

@@ -68,11 +68,11 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
 
-    if not database_exists(connectable.url):
-        create_database(connectable.url)
-        print(f"Database {connectable.url.database} created successfully!")
-    else:
-        print(f"Database {connectable.url.database} already exists.")
+    # if not database_exists(connectable.url):
+    #     create_database(connectable.url)
+    #     print(f"Database {connectable.url.database} created successfully!")
+    # else:
+    #     print(f"Database {connectable.url.database} already exists.")
 
     with connectable.connect() as connection:
         context.configure(
