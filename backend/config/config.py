@@ -16,3 +16,7 @@ class Config:
     
     # Construct a separate DATABASE_URL for Alembic migrations (in case different credentials are used)
     DATABASE_URL_ALEMBIC = f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD_ALEMBIC}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+    SENDER_MAIL = os.getenv("SENDER_MAIL")
+    
+    PASSKEY_MAIL = os.getenv("PASSKEY_MAIL")
