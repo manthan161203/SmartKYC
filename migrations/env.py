@@ -5,7 +5,10 @@ from sqlalchemy_utils import create_database, database_exists
 from alembic import context
 
 from backend.config.config import Config
-from backend.database.models import Base
+from backend.database.models.base_model import Base
+from backend.database.models.user_model import User
+from backend.database.models.document_model import Document
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -68,11 +71,11 @@ def run_migrations_online() -> None:
         poolclass=pool.NullPool,
     )
 
-    # if not database_exists(connectable.url):
-    #     create_database(connectable.url)
-    #     print(f"Database {connectable.url.database} created successfully!")
-    # else:
-    #     print(f"Database {connectable.url.database} already exists.")
+    if not database_exists(connectable.url):
+        create_database(connectable.url)
+        print(f"Database {connectable.url.database} created successfully!")
+    else:
+        print(f"Database {connectable.url.database} already exists.")
 
     with connectable.connect() as connection:
         context.configure(

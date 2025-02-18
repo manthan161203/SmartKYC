@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy_utils import database_exists, create_database
 
 from backend.config.config import Config
-from backend.database.models import Base
+from backend.database.models.base_model import Base
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ def init_db():
 
     DATABASE_URL = Config.DATABASE_URL
 
-    engine = create_engine(DATABASE_URL, echo=True)
+    engine = create_engine(DATABASE_URL)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     try:

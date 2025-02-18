@@ -1,10 +1,11 @@
-from sqlalchemy import Column, Integer, String, DateTime, Enum, func
+from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship, Session
-from backend.database import Base
-from backend.database.enums import DocumentStatus, OTPStatus, VerificationStatus
 from datetime import datetime, timezone
-import re
 import random
+import re
+from backend.database.models.document_model import Document
+from backend.database.models.base_model import Base
+from backend.database.models.enums import OTPStatus, VerificationStatus
 
 class User(Base):
     __tablename__ = "users"
@@ -55,19 +56,3 @@ class User(Base):
         if not any(char.islower() for char in password):
             return False
         return True
-
-    def generate_suggested_username(db: Session, first_name: str, last_name: str) -> str:
-        base_username = f"{first_name.lower()}.{last_name.lower()}"
-        
-        existing_user = db.query(User).filter(func.lower(User.username) == base_username).first()
-
-        if not existing_user:
-            return base_username
-        
-        while True:
-            random_number = random.randint(1000, 9999)
-            new_username = f"{base_username}{random_number}"
-            
-            existing_user = db.query(User).filter(func.lower(User.username) == new_username).first()
-            if not existing_user:
-                return new_username

@@ -1,20 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from backend.database.enums import OTPStatus
-from backend.database.models import User
-from backend.database.database import get_db
-from backend.schemas.user import UserCreate
+from backend.database.models.enums import OTPStatus
+from backend.database.models.user_model import User
+from backend.schemas.user_schema import UserCreate
 from backend.service.auth_service import hash_password
 from backend.service.otp_service import send_otp_email, validate_otp
 
-router = APIRouter()
-
-@router.post("/register")
-def register(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.username == user.username).first()
-    if db_user:
-        suggested_username = User.generate_suggested_username(user.first_name, user.last_name)
-        raise HTTPException(status_code=400, detail=f"Username already registered. Suggested username: {suggested_username}")
+def register_user(user: UserCreate, db: Session):
     
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user:
@@ -45,17 +37,15 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     
-    # Send OTP for email verification
     send_otp_email(new_user.email, db)
     
     return {"message": "User registered successfully", "user_id": new_user.id}
 
-@router.post("/validate-otp")
-def validate_otp_route(email: str, otp: str, db: Session = Depends(get_db)):
-    """Validate the OTP entered by the user."""
+def validate_otp_user(email: str, otp: str, db: Session):
     if validate_otp(email, otp, db):
         user = db.query(User).filter(User.email == email).first()
         user.otp_verified = OTPStatus.VERIFIED.value
         db.commit()
-        
         return {"message": "OTP validated successfully"}
+    
+    raise HTTPException(status_code=400, detail="OTP validation failed")

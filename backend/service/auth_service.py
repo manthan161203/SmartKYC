@@ -1,4 +1,6 @@
 import bcrypt
+from backend.database.models.user_model import User
+from fastapi import HTTPException
 
 def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()

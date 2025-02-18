@@ -1,8 +1,8 @@
-"""enum update for OTP verification
+"""initial migration 1
 
-Revision ID: f5618d55ef8d
+Revision ID: d066f28cb050
 Revises: 
-Create Date: 2025-02-17 15:42:16.077648
+Create Date: 2025-02-18 13:42:11.923979
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'f5618d55ef8d'
+revision: str = 'd066f28cb050'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None

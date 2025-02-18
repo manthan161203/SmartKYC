@@ -2,7 +2,7 @@ import smtplib
 import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from backend.database.models import User
+from backend.database.models.user_model import User
 from datetime import datetime, timezone, timedelta
 from fastapi import HTTPException
 from backend.config.config import Config
@@ -39,6 +39,20 @@ def send_otp_email(email: str, db) -> None:
         server.sendmail(sender_email, receiver_email, msg.as_string())
 
 def validate_otp(email: str, otp: str, db) -> bool:
+    """
+    Validate the OTP entered by the user.
+
+    Args:
+        email (str): The user's email address.
+        otp (str): The OTP entered by the user.
+        db (Session): The database session to interact with.
+
+    Raises:
+        HTTPException: If the OTP is invalid or expired.
+    
+    Returns:
+        bool: True if OTP is valid and not expired, False otherwise.
+    """
     user = db.query(User).filter_by(email=email).first()
     
     if not user:

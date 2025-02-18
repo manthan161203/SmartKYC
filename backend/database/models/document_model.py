@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Enum, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from backend.database import Base
-from backend.database.enums import DocumentStatus, DocumentType
 from datetime import datetime, timezone
+
+from backend.database.models.base_model import Base
+from backend.database.models.enums import DocumentType
 
 class Document(Base):
     __tablename__ = "documents"
