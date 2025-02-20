@@ -1,24 +1,38 @@
-import os
-from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
-load_dotenv()
+class Settings(BaseSettings):
+    # Database Configuration
+    DB_HOST: str
+    DB_PORT: int
+    DB_USER: str
+    DB_NAME: str = "kyc_db"
+    DB_PASSWORD: str
+    ALEMBIC_DB_PASSWORD: str
 
-class Config:
-    DB_HOST = os.getenv("DB_HOST")
-    DB_PORT = os.getenv("DB_PORT")
-    DB_USER = os.getenv("DB_USER")
-    DB_NAME = os.getenv("DB_NAME", "kyc_db")
-    
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
-    DB_PASSWORD_ALEMBIC = os.getenv("DB_PASSWORD_ALEMBIC")
+    # Email Configuration
+    SENDER_MAIL: str
+    PASSKEY_MAIL: str
 
-    DATABASE_URL = f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    DATABASE_URL_ALEMBIC = f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD_ALEMBIC}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    # JWT Configuration
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
 
-    SENDER_MAIL = os.getenv("SENDER_MAIL")
-    PASSKEY_MAIL = os.getenv("PASSKEY_MAIL")
-    
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-    JWT_ALGORITHM = "HS256"
+    class Config:
+        env_file = ".env"  # Automatically loads .env file
 
-    
+    @property
+    def DATABASE_URL(self) -> str:
+        """
+        Constructs and returns the main database URL.
+        """
+        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    @property
+    def ALEMBIC_DATABASE_URL(self) -> str:
+        """
+        Constructs and returns the Alembic database URL.
+        """
+        return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+# Initialize settings
+settings = Settings()
