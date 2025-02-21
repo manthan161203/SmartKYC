@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 from datetime import date, datetime
 import re
 
@@ -26,6 +26,33 @@ class RegisterSchema(BaseModel):
         """Ensure password meets security standards."""
         if len(value) < 8:
             raise ValueError("Password must be at least 8 characters long.")
+        if not re.search(r"[A-Z]", value):
+            raise ValueError("Password must contain at least one uppercase letter.")
+        if not re.search(r"[a-z]", value):
+            raise ValueError("Password must contain at least one lowercase letter.")
+        if not re.search(r"\d", value):
+            raise ValueError("Password must contain at least one number.")
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", value):
+            raise ValueError("Password must contain at least one special character.")
+        return value
+
+class LoginSchema(BaseModel):
+    identifier: str = Field(..., description="A valid email address or phone number")
+    password: str = Field(..., min_length=8, description="Password must be at least 8 characters long.")
+
+    @field_validator("identifier")
+    @classmethod
+    def validate_identifier(cls, value: str) -> str:
+        # Simple regex for email and phone validation
+        email_regex = r'^\S+@\S+\.\S+$'
+        phone_regex = r'^\+?\d{10,15}$'
+        if re.match(email_regex, value) or re.match(phone_regex, value):
+            return value
+        raise ValueError("Identifier must be a valid email or phone number.")
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
         if not re.search(r"[A-Z]", value):
             raise ValueError("Password must contain at least one uppercase letter.")
         if not re.search(r"[a-z]", value):
