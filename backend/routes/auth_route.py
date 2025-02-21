@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from backend.services.auth_service import AuthService
-from backend.schemas.auth_schema import RegisterSchema, LoginSchema
+from backend.schemas.auth_schema import RegisterSchema, LoginSchema, ChangePasswordSchema
 from backend.config.database import get_db
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -36,4 +36,19 @@ async def login_user(login_data: LoginSchema, db: Session = Depends(get_db)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred during login: {str(e)}"
+        )
+
+@router.post("/change-password")
+async def change_password(change_data: ChangePasswordSchema, db: Session = Depends(get_db)):
+    """Change a user's password."""
+    try:
+        return await auth_service.change_password(change_data, db)
+    except HTTPException as http_exc:
+        # Handle HTTP exceptions raised by the service
+        raise http_exc
+    except Exception as e:
+        # Handle any other unexpected errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred during password change: {str(e)}"
         )

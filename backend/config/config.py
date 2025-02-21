@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     # Email Configuration
     SENDER_MAIL: str
     PASSKEY_MAIL: str
+    SMTP_PORT: int
+    SMTP_SERVER: str
 
     # JWT Configuration
     JWT_SECRET_KEY: str
