@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
 
+    BACKEND_URL : str
+    
     class Config:
         env_file = ".env"  # Automatically loads .env file
 
