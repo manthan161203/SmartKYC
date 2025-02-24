@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     # JWT Configuration
     JWT_SECRET_KEY: str = secrets.token_urlsafe(64)
     JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    JWT_REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
     
     # redis Configuration
     REDIS_HOST: str = "localhost"
