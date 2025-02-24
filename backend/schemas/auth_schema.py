@@ -79,7 +79,7 @@ class LoginSchema(BaseModel):
     identifier: str = Field(
         ...,
         description="A valid email address or phone number.",
-        example="john.doe@example.com"  # Example for email, can be a phone number in a different case
+        example="john.doe@example.com"
     )
     password: str = Field(
         ...,
@@ -148,6 +148,43 @@ class ChangePasswordSchema(BaseModel):
     def validate_new_password(cls, value: str) -> str:
         """Ensure the new password meets security standards."""
         return validate_password(value)
+
+    @model_validator(mode="before")
+    @classmethod
+    def check_new_passwords(cls, values: dict) -> dict:
+        """Ensure new password and confirm password match."""
+        if values.get("new_password") != values.get("confirm_new_password"):
+            raise ValueError("New password and confirmation do not match.")
+        return values
+
+# ------------------ Request Password Reset Schema ------------------
+class RequestPasswordResetSchema(BaseModel):
+    identifier: str = Field(
+        ...,
+        description="A valid email address or phone number.",
+        example="john.doe@example.com"
+    )
+
+    @field_validator("identifier")
+    @classmethod
+    def validate_identifier(cls, value: str) -> str:
+        """Validate identifier as email or phone number."""
+        if EMAIL_REGEX.match(value) or PHONE_REGEX.match(value):
+            return value
+        raise ValueError("Identifier must be a valid email or phone number.")
+
+# ------------------ Reset Password Schema ------------------
+class ResetPasswordSchema(BaseModel):
+    token: str = Field(..., description="Password reset token received via email.")
+    current_password: str = Field(
+        ..., min_length=8, description="Current password.", example="CurrentP@ssw0rd"
+    )
+    new_password: str = Field(
+        ..., min_length=8, description="New password.", example="NewP@ssw0rd"
+    )
+    confirm_new_password: str = Field(
+        ..., min_length=8, description="Confirm new password.", example="NewP@ssw0rd"
+    )
 
     @model_validator(mode="before")
     @classmethod

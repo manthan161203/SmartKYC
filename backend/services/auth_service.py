@@ -1,22 +1,27 @@
 import re
+from jose import JWTError
 import redis
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from fastapi import HTTPException, status
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from backend.config.config import settings
 from backend.models.user_model import User
 from backend.models.gender_type_model import GenderType
 from backend.models.otp_model import OTPModel
-from backend.schemas.auth_schema import ChangePasswordSchema, LoginSchema, RegisterSchema
+from backend.schemas.auth_schema import ChangePasswordSchema, LoginSchema, RegisterSchema, RequestPasswordResetSchema, ResetPasswordSchema
 from backend.schemas.otp_schema import UserOTPSchema, VerifyOTPSchema
-from backend.utils.otp_email_utils import send_otp_email
+from backend.utils.otp_email_utils import send_email
 from backend.utils.security_utils import SecurityUtils
+from backend.utils.token_utils import TokenUtils # Import generate_token function
 
 EMAIL_REGEX = re.compile(r'^\S+@\S+\.\S+$')
 PHONE_REGEX = re.compile(r'^\+?\d{10,15}$')
 
 REDIS_CLIENT = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, decode_responses=True)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 class AuthService:
     @staticmethod
@@ -66,67 +71,39 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred.")
 
     @staticmethod
-    async def login_user(login_data: LoginSchema, db: Session):
+    async def login_user(form_data: OAuth2PasswordRequestForm, db: Session):
         """Authenticate user and generate OTP for login."""
         try:
-            identifier = login_data.identifier
+            identifier = form_data.username  # OAuth2PasswordRequestForm uses "username"
 
             user = db.query(User).filter(
                 or_(User.email == identifier, User.phone_number == identifier)
             ).first()
 
-            if not user or not SecurityUtils.verify_password(login_data.password, user.hashed_password):
+            if not user or not SecurityUtils.verify_password(form_data.password, user.hashed_password):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials.")
 
             otp_response = await AuthService.generate_and_store_otp(user.id, db)
+            access_token = TokenUtils.generate_token(identifier=user.email, purpose="auth")
 
             return {
                 "message": "Login successful. OTP sent to your registered email/phone.",
                 "user_id": user.id,
-                "otp_message": otp_response["message"]
+                "otp_message": otp_response["message"],
+                "access_token": access_token,
+                "token_type": "Bearer"
             }
 
         except SQLAlchemyError:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error occurred.")
-    @staticmethod
-    async def change_password(cp_data: ChangePasswordSchema, db: Session):
-        """Change user password after verifying current password."""
-        try:
-            identifier = cp_data.identifier
-
-            user = db.query(User).filter(
-                or_(User.email == identifier, User.phone_number == identifier)
-            ).first()
-
-            if not user:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
-            if not SecurityUtils.verify_password(cp_data.current_password, user.hashed_password):
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect.")
-
-            user.hashed_password = SecurityUtils.hash_password(cp_data.new_password)
-            db.commit()
-            db.refresh(user)
-
-            return {"message": "Password changed successfully."}
-
-        except HTTPException as http_exc:
-            raise http_exc
-
-        except SQLAlchemyError as sae:
-            db.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Database error occurred: {str(sae)}")
-
-        except Exception as e:
-            db.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(e)}")
-
+        
     @staticmethod
     async def generate_and_store_otp(otp_send_data: UserOTPSchema, db: Session):
         """Generate and store OTP for a user, with the option of using Redis or SQL database."""
         try:
-            user_id = otp_send_data.user_id
+            
+            user_id = otp_send_data
             user = db.query(User).filter(User.id == user_id).first()
             
             if not user:
@@ -159,7 +136,7 @@ class AuthService:
             REDIS_CLIENT.setex(f"otp:{user_id}", otp_expiry_seconds, otp_code)
             
             # Send OTP via email
-            email_sent = send_otp_email(user.email, otp_code, full_name)
+            email_sent = send_email(user.email, full_name, "otp", otp_code)
 
             if not email_sent:
                 raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
@@ -235,3 +212,85 @@ class AuthService:
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
+    @staticmethod
+    async def change_password(cp_data: ChangePasswordSchema, db: Session):
+        """Change user password after verifying current password."""
+        try:
+            identifier = cp_data.identifier
+
+            user = db.query(User).filter(
+                or_(User.email == identifier, User.phone_number == identifier)
+            ).first()
+
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+            if not SecurityUtils.verify_password(cp_data.current_password, user.hashed_password):
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect.")
+
+            user.hashed_password = SecurityUtils.hash_password(cp_data.new_password)
+            db.commit()
+            db.refresh(user)
+
+            return {"message": "Password changed successfully."}
+
+        except HTTPException as http_exc:
+            raise http_exc
+
+        except SQLAlchemyError as sae:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Database error occurred: {str(sae)}")
+
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(e)}")
+
+    @staticmethod
+    async def request_password_reset(request_data: RequestPasswordResetSchema, db: Session):
+        """Send password reset link via email."""
+        identifier = request_data.identifier
+
+        user = db.query(User).filter(
+            or_(User.email == identifier, User.phone_number == identifier)
+        ).first()
+
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+        
+        full_name = user.full_name
+
+        # Generate a password reset token
+        reset_token = TokenUtils.generate_token({"user_id": user.id}, purpose="reset_password", expires_in=1440)
+        # Send email with the reset link (Assuming `EmailService.send_email` exists)
+        reset_link = f"http://127.0.0.1:8000/auth/reset-password?token={reset_token}"
+        send_email(user.email, full_name, "reset_password", reset_link=reset_link)
+
+        return {"message": "Password reset link sent to your email."}
+    
+    @staticmethod
+    async def reset_password(reset_data: ResetPasswordSchema, db: Session):
+        """Reset password after verifying the token."""
+        try:
+            payload = TokenUtils.verify_token(reset_data.token, expected_purpose="reset_password")
+            user_id = payload.get("user_id")
+
+            if not user_id:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token.")
+
+            user = db.query(User).filter(User.id == user_id).first()
+
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+            if not SecurityUtils.verify_password(reset_data.current_password, user.hashed_password):
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect.")
+
+            user.hashed_password = SecurityUtils.hash_password(reset_data.new_password)
+            db.commit()
+            db.refresh(user)
+
+            return {"message": "Password has been reset successfully."}
+
+        except JWTError:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired token.")

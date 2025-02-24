@@ -1,7 +1,8 @@
 import logging
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from backend.config.database import init_db
+from backend.utils.jwt_middleware import get_current_user
 from backend.utils.seed_data import seed_reference_tables
 from backend.routes.auth_route import router as auth_router
 from backend.routes.profile_route import router as profile_router  # Updated
@@ -31,7 +32,7 @@ app = FastAPI(lifespan=lifespan)
 
 # Register routers
 app.include_router(auth_router)
-app.include_router(profile_router)
+app.include_router(profile_router, dependencies=[Depends(get_current_user)])
 
 @app.get("/", tags=["Root"])
 async def read_root():
