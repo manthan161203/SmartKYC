@@ -21,6 +21,7 @@ class SecurityUtils:
         return otp
 
     @staticmethod
-    def set_otp_expiry() -> datetime:
-        """Set OTP expiry time (10 minutes from now)."""
-        return datetime.now(tz=timezone.utc) + timedelta(minutes=10)
+    def get_otp_expiry(minutes: int = 10) -> datetime:
+        """Get OTP expiry time (10 minutes from now, UTC aware)."""
+        return datetime.now(timezone.utc) + timedelta(minutes=minutes)
+

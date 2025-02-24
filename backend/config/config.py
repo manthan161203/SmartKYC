@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     JWT_SECRET_KEY: str = secrets.token_urlsafe(64)
     JWT_ALGORITHM: str = "HS256"
     
+    # redis Configuration
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
+    
+    #otp Configuration
+    OTP_EXPIRY_TIME: int = 600
     class Config:
         env_file = ".env"  # Automatically loads .env file
 

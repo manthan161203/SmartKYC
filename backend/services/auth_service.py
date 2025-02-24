@@ -1,28 +1,32 @@
 import re
-from fastapi import HTTPException, status
+import redis
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
+from datetime import datetime, timezone
+from fastapi import HTTPException, status
+from backend.config.config import settings
 from backend.models.user_model import User
 from backend.models.gender_type_model import GenderType
+from backend.models.otp_model import OTPModel
 from backend.schemas.auth_schema import ChangePasswordSchema, LoginSchema, RegisterSchema
+from backend.schemas.otp_schema import VerifyOTPSchema
+from backend.utils.otp_email_utils import send_otp_email
 from backend.utils.security_utils import SecurityUtils
 
-# Precompiled regex patterns for validation
 EMAIL_REGEX = re.compile(r'^\S+@\S+\.\S+$')
 PHONE_REGEX = re.compile(r'^\+?\d{10,15}$')
 
+REDIS_CLIENT = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, decode_responses=True)
 
 class AuthService:
     @staticmethod
     async def register_user(user_data: RegisterSchema, db: Session):
         """Register a new user with robust error handling."""
         try:
-            # Ensure gender_id is valid
             if not db.query(GenderType).filter(GenderType.id == user_data.gender_id).first():
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid gender selection.")
 
-            # Check if email or phone number is already registered
             existing_user = db.query(User).filter(
                 or_(User.email == user_data.email, User.phone_number == user_data.phone_number)
             ).first()
@@ -30,10 +34,8 @@ class AuthService:
             if existing_user:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email or phone number already registered.")
 
-            # Hash the password
             hashed_password = SecurityUtils.hash_password(user_data.password)
 
-            # Create new user
             new_user = User(
                 full_name=user_data.full_name,
                 email=user_data.email,
@@ -66,11 +68,10 @@ class AuthService:
 
     @staticmethod
     async def login_user(login_data: LoginSchema, db: Session):
-        """Authenticate user using email or phone number and password."""
+        """Authenticate user and generate OTP for login."""
         try:
             identifier = login_data.identifier
 
-            # Find user by email or phone number
             user = db.query(User).filter(
                 or_(User.email == identifier, User.phone_number == identifier)
             ).first()
@@ -78,22 +79,23 @@ class AuthService:
             if not user or not SecurityUtils.verify_password(login_data.password, user.hashed_password):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials.")
 
-            return {"message": "Login successful", "user_id": user.id}
+            otp_response = await AuthService.generate_and_store_otp(user.id, db)
+
+            return {
+                "message": "Login successful. OTP sent to your registered email/phone.",
+                "user_id": user.id,
+                "otp_message": otp_response["message"]
+            }
 
         except SQLAlchemyError:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error occurred.")
-
-        except Exception:
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred.")
-
     @staticmethod
     async def change_password(cp_data: ChangePasswordSchema, db: Session):
         """Change user password after verifying current password."""
         try:
             identifier = cp_data.identifier
 
-            # Find user by email or phone number
             user = db.query(User).filter(
                 or_(User.email == identifier, User.phone_number == identifier)
             ).first()
@@ -101,11 +103,9 @@ class AuthService:
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-            # Verify the current password
             if not SecurityUtils.verify_password(cp_data.current_password, user.hashed_password):
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Current password is incorrect.")
 
-            # Hash the new password and update
             user.hashed_password = SecurityUtils.hash_password(cp_data.new_password)
             db.commit()
             db.refresh(user)
@@ -113,7 +113,6 @@ class AuthService:
             return {"message": "Password changed successfully."}
 
         except HTTPException as http_exc:
-            # If the error is an HTTPException (e.g., invalid current password), propagate it
             raise http_exc
 
         except SQLAlchemyError as sae:
@@ -123,3 +122,108 @@ class AuthService:
         except Exception as e:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(e)}")
+
+    @staticmethod
+    async def generate_and_store_otp(user_id: int, db: Session):
+        """Delete all existing OTPs, generate a new OTP, store it in DB, and send via email."""
+        try:
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found.")
+
+            # Delete all OTPs related to this user_id
+            db.query(OTPModel).filter(OTPModel.user_id == user_id).delete(synchronize_session=False)
+
+            # Generate new OTP
+            otp_code = SecurityUtils.generate_otp()
+            # otp_expiry = SecurityUtils.get_otp_expiry()
+            otp_expiry_seconds = settings.OTP_EXPIRY_TIME
+
+            # Store new OTP
+            # otp_entry = OTPModel(user_id=user_id, otp=otp_code, expiry=otp_expiry, otp_status_id=2)  # Status: Sent
+            # db.add(otp_entry)
+            # db.commit()
+            # db.refresh(otp_entry)
+
+            # Store OTP in Redis (Auto-expires in 10 minutes)
+            REDIS_CLIENT.setex(f"otp:{user_id}", otp_expiry_seconds, otp_code)
+            
+            # Send OTP via email
+            email_sent = send_otp_email(user.email, otp_code)
+
+            if not email_sent:
+                raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
+
+            return {"message": "OTP generated and sent successfully", "otp": otp_code}  # Remove OTP from response in production.
+
+        # except SQLAlchemyError:
+        #     db.rollback()
+        #     raise HTTPException(
+        #         status_code=500,
+        #         detail="Failed to generate OTP. Please try again later."
+        #     )
+
+        # except Exception as e:
+        #     db.rollback()
+        #     raise HTTPException(
+        #         status_code=500,
+        #         detail=f"An unexpected error occurred: {str(e)}"
+        #     )
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        
+    # @staticmethod
+    # async def verify_otp(otp_data: VerifyOTPSchema, db: Session):
+    #     """Verify OTP for a user."""
+    #     try:
+            
+    #         otp_entry = (
+    #             db.query(OTPModel)
+    #             .filter(OTPModel.user_id == otp_data.user_id, OTPModel.otp_status_id == 2)  # OTP Status: Sent
+    #             .order_by(OTPModel.expiry.desc())
+    #             .first()
+    #         )
+
+    #         if not otp_entry:
+    #             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="OTP not found.")
+
+    #         if otp_entry.otp != otp_data.otp_code:
+    #             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP.")
+
+    #         if datetime.now(tz=timezone.utc) > otp_entry.expiry.replace(tzinfo=timezone.utc):
+    #             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="OTP expired.")
+
+    #         otp_entry.otp_status_id = 3  # Status: Verified
+    #         db.commit()
+
+    #         return {"message": "OTP verified successfully. You are now logged in."}
+
+    #     except SQLAlchemyError:
+    #         db.rollback()
+    #         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error occurred.")
+    @staticmethod
+    async def verify_otp(otp_data: VerifyOTPSchema, db: Session):
+        """Verify OTP for a user using Redis while handling leading zeros."""
+        try:
+            # Fetch OTP from Redis
+            stored_otp = REDIS_CLIENT.get(f"otp:{otp_data.user_id}")
+
+            if stored_otp is None:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="OTP not found or expired.")
+
+            # Ensure stored_otp is a string (decode only if it's bytes)
+            if isinstance(stored_otp, bytes):
+                stored_otp = stored_otp.decode("utf-8")
+
+            # Compare OTPs as strings to preserve leading zeros
+            if stored_otp != otp_data.otp_code:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OTP.")
+
+            # OTP is correct → Delete from Redis
+            REDIS_CLIENT.delete(f"otp:{otp_data.user_id}")
+            
+            return {"message": "OTP verified successfully. You are now logged in."}
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
