@@ -33,8 +33,8 @@ def seed_reference_tables():
         # Seed OTPStatus table
         if not session.execute(select(OTPStatus)).scalars().first():
             otp_statuses = [
-                OTPStatus(id=1, status="Not Sent"),
-                OTPStatus(id=2, status="Sent"),
+                OTPStatus(id=1, status="Sent"),
+                OTPStatus(id=2, status="Not Sent"),
                 OTPStatus(id=3, status="Verified")
             ]
             session.bulk_save_objects(otp_statuses)

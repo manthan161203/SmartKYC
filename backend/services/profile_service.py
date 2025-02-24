@@ -16,7 +16,6 @@ class ProfileService:
                     detail="No gender types found."
                 )
 
-            # Return the gender types using the GenderTypeResponse schema
             return [GenderTypeResponse(id=gender.id, type=gender.type) for gender in genders]
 
         except SQLAlchemyError as sae:

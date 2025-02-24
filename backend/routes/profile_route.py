@@ -11,14 +11,5 @@ profile_service = ProfileService()
 @router.get("/gender-types", response_model=List[GenderTypeResponse])
 async def get_gender_types(db: Session = Depends(get_db)):
     """Fetch all gender types"""
-    try:
-        return await profile_service.get_gender_types(db)
-    except HTTPException as http_exc:
-        # Propagate already-raised HTTP exceptions
-        raise http_exc
-    except Exception as e:
-        # Catch any unexpected errors and return a 500 response
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred: {str(e)}"
-        )
+    return await profile_service.get_gender_types(db)
+    
