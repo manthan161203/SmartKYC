@@ -3,14 +3,13 @@ import redis
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from datetime import datetime, timezone
 from fastapi import HTTPException, status
 from backend.config.config import settings
 from backend.models.user_model import User
 from backend.models.gender_type_model import GenderType
 from backend.models.otp_model import OTPModel
 from backend.schemas.auth_schema import ChangePasswordSchema, LoginSchema, RegisterSchema
-from backend.schemas.otp_schema import VerifyOTPSchema
+from backend.schemas.otp_schema import UserOTPSchema, VerifyOTPSchema
 from backend.utils.otp_email_utils import send_otp_email
 from backend.utils.security_utils import SecurityUtils
 
@@ -124,10 +123,12 @@ class AuthService:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(e)}")
 
     @staticmethod
-    async def generate_and_store_otp(user_id: int, db: Session):
+    async def generate_and_store_otp(otp_send_data: UserOTPSchema, db: Session):
         """Generate and store OTP for a user, with the option of using Redis or SQL database."""
         try:
+            user_id = otp_send_data.user_id
             user = db.query(User).filter(User.id == user_id).first()
+            
             if not user:
                 raise HTTPException(status_code=404, detail="User not found.")
 
