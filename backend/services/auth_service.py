@@ -131,6 +131,8 @@ class AuthService:
             if not user:
                 raise HTTPException(status_code=404, detail="User not found.")
 
+             # Fetch user's full name
+            full_name = user.full_name
             # Uncomment this section to use SQL-based OTP generation (old logic)
             # Delete all OTPs related to this user_id
             # db.query(OTPModel).filter(OTPModel.user_id == user_id).delete(synchronize_session=False)
@@ -156,7 +158,7 @@ class AuthService:
             REDIS_CLIENT.setex(f"otp:{user_id}", otp_expiry_seconds, otp_code)
             
             # Send OTP via email
-            email_sent = send_otp_email(user.email, otp_code)
+            email_sent = send_otp_email(user.email, otp_code, full_name)
 
             if not email_sent:
                 raise HTTPException(status_code=500, detail="Failed to send OTP via email.")

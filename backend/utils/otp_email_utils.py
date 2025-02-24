@@ -7,13 +7,14 @@ from backend.config.config import settings
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-def send_otp_email(to_email: str, otp: str) -> bool:
+def send_otp_email(to_email: str, otp: str, full_name: str) -> bool:
     """
     Send an OTP code via email using a well-formatted HTML template.
 
     Args:
         to_email (str): Recipient's email address.
         otp (str): The OTP code to send.
+        full_name (str): The full name of the recipient.
 
     Returns:
         bool: True if the email was sent successfully, False otherwise.
@@ -24,21 +25,40 @@ def send_otp_email(to_email: str, otp: str) -> bool:
     sender_email = settings.SENDER_MAIL
     sender_password = settings.PASSKEY_MAIL
     
-    subject = "Your One-Time Password (OTP)"
+    subject = "Your One-Time Password (OTP) - Smart KYC"
     
     # HTML message body for OTP email
     html = f"""\
-<html>
-  <body style="font-family: Arial, sans-serif; color: #333;">
-    <h2 style="color: #2a7ae2;">One-Time Password (OTP) Verification</h2>
-    <p>Dear User,</p>
-    <p>Your OTP code is: <strong style="font-size: 1.3em;">{otp}</strong></p>
-    <p>Please use this code to complete your verification. This OTP is valid for the next 10 minutes.</p>
-    <br/>
-    <p>Regards,<br/>Smart KYC</p>
-  </body>
-</html>
-"""
+    <html>
+    <body style="font-family: Arial, sans-serif; background-color: #f4f7fc; margin: 0; padding: 0;">
+        <table role="presentation" style="width: 100%; max-width: 600px; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff;">
+            <tr>
+                <td style="background-color: #2a7ae2; color: white; text-align: center; padding: 15px 0; font-size: 24px; font-weight: bold; border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                    One Time Password (OTP)
+                </td>
+            </tr>
+            <tr>
+                <td style="padding: 30px; text-align: center;">
+                    <p style="font-size: 18px; color: #333333; line-height: 1.5;">
+                        Hello {full_name},<br><br>
+                        Your One-Time Password (OTP) is:<br><br>
+                        <strong style="font-size: 30px; color: #2a7ae2;">{otp}</strong><br><br>
+                        Please use this OTP to complete your verification.<br>
+                        <span style="font-size: 14px; color: #888;">This OTP will expire in 10 minutes.</span>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="background-color: #f4f7fc; color: #333333; text-align: center; padding: 15px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                    <p style="font-size: 12px;">If you did not request this OTP, please ignore this email.</p>
+                    <p style="font-size: 12px;">Regards,<br><strong>Smart KYC Team</strong></p>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    """
+
     # Create MIMEText object with HTML subtype
     message = MIMEText(html, "html")
     message["Subject"] = subject
@@ -64,4 +84,3 @@ def send_otp_email(to_email: str, otp: str) -> bool:
     except Exception as e:
         logger.error(f"Error sending OTP email to {to_email}: {e}")
         raise Exception(f"An unexpected error occurred while sending OTP email: {e}")
-
