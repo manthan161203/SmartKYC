@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings
+import secrets
 
 class Settings(BaseSettings):
     # Database Configuration
@@ -16,7 +17,7 @@ class Settings(BaseSettings):
     SMTP_SERVER: str
 
     # JWT Configuration
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = secrets.token_urlsafe(64)
     JWT_ALGORITHM: str = "HS256"
     
     class Config:
