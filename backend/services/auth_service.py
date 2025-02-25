@@ -128,9 +128,9 @@ class AuthService:
             
             # Uncomment this section to use SQL-based OTP generation (old logic)
             # Send OTP via email
-            # email_sent = send_email(user.email, full_name, "otp", otp_code)
-            # if not email_sent:
-            #     raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
+            email_sent = send_email(user.email, full_name, "otp", otp_code)
+            if not email_sent:
+                raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
 
             return {"message": "OTP generated and sent successfully", "otp": otp_code}  # Remove OTP from response in production.
 

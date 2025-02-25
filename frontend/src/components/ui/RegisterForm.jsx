@@ -20,7 +20,7 @@ const registerSchema = z.object({
     .min(2, "min 2 char.")
     .max(50, "First name cannot exceed 50 characters.")
     .regex(nameRegex, "First name can only contain letters."),
-
+  middle_name: z.string().optional(),
   last_name: z.string()
     .min(2, "min least 2 char.")
     .max(50, "Last name cannot exceed 50 characters.")
@@ -54,14 +54,16 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    setValue, // Add setValue to update phone_number field in react-hook-form
     formState: { errors },
   } = useForm({
     resolver: zodResolver(registerSchema),
   });
 
   const handlePhoneNumberChange = (e) => {
-    let value = e.target.value;
-    setPhoneNumber(value.replace(/\D/g, "")); // Only allow digits
+    let value = e.target.value.replace(/\D/g, "");
+    setPhoneNumber(value);
+    setValue("phone_number", value);
   };
 
   const onSubmit = async (data) => {
@@ -149,7 +151,6 @@ export function RegisterForm() {
                       placeholder="Enter your phone number"
                       value={phoneNumber}
                       onChange={handlePhoneNumberChange}
-                      {...register("phone_number")} // Register the input field with react-hook-form
                     />
                     {errors.phone_number && (
                       <p className="text-red-500 mt-0.5 text-xs">{errors.phone_number.message}</p>
