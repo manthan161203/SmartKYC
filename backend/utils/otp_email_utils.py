@@ -27,8 +27,8 @@ def send_email(to_email: str, full_name: str, email_type: str, otp: str = None, 
     sender_email = settings.SENDER_MAIL
     sender_password = settings.PASSKEY_MAIL
 
-    print(reset_link)
-    print(email_type)
+    print(f"SMTP Server: {reset_link}")
+    
     if email_type == "otp":
         subject = "Your One-Time Password (OTP) - Smart KYC"
         html = f"""\

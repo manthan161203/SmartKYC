@@ -93,7 +93,7 @@ class AuthService:
                 "access_token": access_token,
                 "token_type": "Bearer"
             }
-
+            
         except SQLAlchemyError:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error occurred.")
