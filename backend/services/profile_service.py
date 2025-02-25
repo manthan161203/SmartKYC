@@ -5,11 +5,11 @@ from backend.models.gender_type_model import GenderType
 from backend.schemas.profile_schema import GenderTypeResponse
 
 class ProfileService:
-    async def get_gender_types(self, db: Session):
+    async def get_gender_types(self, current_user, db: Session):
         """Fetch all gender types with proper error handling."""
         try:
             genders = db.query(GenderType).all()
-
+            
             if not genders:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,

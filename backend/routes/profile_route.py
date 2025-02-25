@@ -15,5 +15,5 @@ async def get_gender_types(
     current_user: str = Depends(get_current_user)  # Protect route with JWT middleware
 ):
     """Fetch all gender types"""
-    return await profile_service.get_gender_types(db)
+    return await profile_service.get_gender_types(current_user, db)
     

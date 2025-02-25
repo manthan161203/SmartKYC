@@ -9,3 +9,6 @@ kyc_env/
 
 # Ignore database files
 *.sqlite3
+
+#ignore node_modules
+node_modules/

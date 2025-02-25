@@ -5,6 +5,7 @@ from backend.schemas.otp_schema import VerifyOTPSchema
 from backend.services.auth_service import AuthService
 from backend.schemas.auth_schema import RegisterSchema, LoginSchema, ChangePasswordSchema, RequestPasswordResetSchema, ResetPasswordSchema
 from backend.config.database import get_db
+from backend.utils.jwt_middleware import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 auth_service = AuthService()
@@ -27,12 +28,11 @@ async def verify_otp(otp_data: VerifyOTPSchema, db: Session = Depends(get_db)):
     """Verify the OTP entered by the user."""
     return await auth_service.verify_otp(otp_data, db)
 
-@router.post("/request-password-reset")
-async def request_password_reset(request_data: RequestPasswordResetSchema, db: Session = Depends(get_db)):
-    """Request password reset link"""
-    return await auth_service.request_password_reset(request_data, db)
-
-@router.post("/reset-password")
-async def reset_password(reset_data: ResetPasswordSchema, db: Session = Depends(get_db)):
-    """Reset password using the token"""
-    return await auth_service.reset_password(reset_data, db)
+@router.post("/change-password")
+async def change_password(
+    password_data: ChangePasswordSchema,
+    current_user: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Change the user's password."""
+    return await auth_service.change_password(password_data, current_user, db)
