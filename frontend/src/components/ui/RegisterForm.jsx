@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";  // Import the Eye and EyeOff icons
 import PasswordStrengthBar from "react-password-strength-bar";
 
 const nameRegex = /^[A-Za-z]+$/;
@@ -27,7 +27,7 @@ const registerSchema = z.object({
     .regex(nameRegex, "Last name can only contain letters."),
 
   email: z.string().email("Invalid email address."),
-  
+
   phone_number: z.string()
     .regex(/^\d+$/, "Phone number must contain only numbers.")
     .min(10, "Phone number must be at least 10 digits."),
@@ -41,13 +41,15 @@ const registerSchema = z.object({
     }, "Date of birth must be in the past."),
 
   gender_id: z.enum(["1", "2", "3"], { errorMap: () => ({ message: "Select a valid gender" }) }),
-  
-  password: z.string().min(6, "Password must be at least 6 characters."),
+
+  password: z.string().min(8, "Password must be at least 8 characters."),
 });
 
 export function RegisterForm() {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // State for toggling password visibility
+  const [phoneNumber, setPhoneNumber] = useState(""); // Phone number without country code
 
   const {
     register,
@@ -57,18 +59,21 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
+  const handlePhoneNumberChange = (e) => {
+    let value = e.target.value;
+    setPhoneNumber(value.replace(/\D/g, "")); // Only allow digits
+  };
+
   const onSubmit = async (data) => {
     const full_name = `${data.first_name} ${data.middle_name} ${data.last_name}`;
 
     try {
-      await axios.post("http://localhost:8000/auth/register", { ...data, full_name });
+      // Ensure phone number is in the correct format (with +91)
+      const fullPhoneNumber = `+91${phoneNumber}`;
 
-      toast.success(
-        <div>
-          <p>Registration Successful!</p>
-        </div>,
-        { position: "top-right" }
-      );
+      await axios.post("http://localhost:8000/auth/register", { ...data, full_name, phone_number: fullPhoneNumber });
+
+      toast.success("Registration Successful!", { position: "top-right" });
 
       setTimeout(() => {
         navigate("/login");
@@ -126,10 +131,31 @@ export function RegisterForm() {
                 {errors.email && <p className="text-red-500 mt-0.5 text-xs">{errors.email.message}</p>}
               </div>
 
-              <div>
-                <Label htmlFor="phone_number">Phone Number <span className="text-red-500">*</span></Label>
-                <Input id="phone_number" type="text" placeholder="Enter your phone number" {...register("phone_number")} />
-                {errors.phone_number && <p className="text-red-500 mt-0.5 text-xs">{errors.phone_number.message}</p>}
+
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="phone_number">Phone number <span className="text-red-500">*</span></Label>
+                <div className="flex gap-x-0.5">
+                  <Input
+                    id="country_code"
+                    type="text"
+                    value="+91"
+                    disabled
+                    className="text-center w-1/6"
+                  />
+                  <div className="w-5/6">
+                    <Input
+                      id="phone_number"
+                      type="text"
+                      placeholder="Enter your phone number"
+                      value={phoneNumber}
+                      onChange={handlePhoneNumberChange}
+                      {...register("phone_number")} // Register the input field with react-hook-form
+                    />
+                    {errors.phone_number && (
+                      <p className="text-red-500 mt-0.5 text-xs">{errors.phone_number.message}</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -153,13 +179,22 @@ export function RegisterForm() {
 
               <div>
                 <Label htmlFor="password">Password <span className="text-red-500">*</span></Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="Enter your password"
-                  {...register("password")}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"} // Toggle password visibility
+                    placeholder="Enter your password"
+                    {...register("password")}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-3"
+                    onClick={() => setShowPassword(!showPassword)} // Toggle the state on button click
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
                 {errors.password && <p className="text-red-500 mt-0.5 text-xs">{errors.password.message}</p>}
 
                 <div className="mt-4">

@@ -65,7 +65,7 @@ class AuthService:
     async def login_user(form_data: OAuth2PasswordRequestForm, db: Session):
         """Authenticate user and generate OTP for login."""
         try:
-            identifier = form_data.username  # OAuth2PasswordRequestForm uses "username"
+            identifier = form_data.username
 
             user = db.query(User).filter(
                 or_(User.email == identifier, User.phone_number == identifier)
@@ -126,11 +126,11 @@ class AuthService:
             # Store OTP in Redis (Auto-expires in 10 minutes)
             REDIS_CLIENT.setex(f"otp:{user_id}", otp_expiry_seconds, otp_code)
             
+            # Uncomment this section to use SQL-based OTP generation (old logic)
             # Send OTP via email
-            email_sent = send_email(user.email, full_name, "otp", otp_code)
-
-            if not email_sent:
-                raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
+            # email_sent = send_email(user.email, full_name, "otp", otp_code)
+            # if not email_sent:
+            #     raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
 
             return {"message": "OTP generated and sent successfully", "otp": otp_code}  # Remove OTP from response in production.
 
