@@ -1,5 +1,4 @@
 import re
-from jose import JWTError
 import redis
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy.orm import Session
@@ -10,11 +9,11 @@ from backend.config.config import settings
 from backend.models.user_model import User
 from backend.models.gender_type_model import GenderType
 from backend.models.otp_model import OTPModel
-from backend.schemas.auth_schema import ChangePasswordSchema, LoginSchema, RegisterSchema, RequestPasswordResetSchema, ResetPasswordSchema
+from backend.schemas.auth_schema import ChangePasswordSchema, RegisterSchema
 from backend.schemas.otp_schema import UserOTPSchema, VerifyOTPSchema
 from backend.utils.otp_email_utils import send_email
 from backend.utils.security_utils import SecurityUtils
-from backend.utils.token_utils import TokenUtils # Import generate_token function
+from backend.utils.token_utils import TokenUtils
 
 EMAIL_REGEX = re.compile(r'^\S+@\S+\.\S+$')
 PHONE_REGEX = re.compile(r'^\+?\d{10,15}$')
@@ -26,18 +25,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 class AuthService:
     @staticmethod
     async def register_user(user_data: RegisterSchema, db: Session):
-        """Register a new user with robust error handling."""
         try:
             if not db.query(GenderType).filter(GenderType.id == user_data.gender_id).first():
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid gender selection.")
-
-            existing_user = db.query(User).filter(
-                or_(User.email == user_data.email, User.phone_number == user_data.phone_number)
-            ).first()
-
-            if existing_user:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email or phone number already registered.")
-
+                        
             hashed_password = SecurityUtils.hash_password(user_data.password)
 
             new_user = User(
@@ -66,9 +57,9 @@ class AuthService:
             db.rollback()
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error occurred.")
 
-        except Exception:
+        except Exception as e:
             db.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="An unexpected error occurred.")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"An unexpected error occurred: {str(e)}")
 
     @staticmethod
     async def login_user(form_data: OAuth2PasswordRequestForm, db: Session):

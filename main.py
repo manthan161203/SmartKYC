@@ -6,6 +6,8 @@ from backend.utils.jwt_middleware import get_current_user
 from backend.utils.seed_data import seed_reference_tables
 from backend.routes.auth_route import router as auth_router
 from backend.routes.profile_route import router as profile_router  # Updated
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -29,6 +31,14 @@ async def lifespan(app: FastAPI):
 
 # Initialize FastAPI app with lifespan context
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all domains (update in production)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all methods (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Register routers
 app.include_router(auth_router)
