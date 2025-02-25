@@ -22,7 +22,7 @@ async def login_user(
     return await AuthService.login_user(form_data, db)
 
 @router.post("/verify-otp")
-async def verify_otp(otp_data: VerifyOTPSchema, db: Session = Depends(get_db)):
+async def verify_otp(otp_data: VerifyOTPSchema, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     return await auth_service.verify_otp(otp_data, db)
 
 @router.post("/change-password")

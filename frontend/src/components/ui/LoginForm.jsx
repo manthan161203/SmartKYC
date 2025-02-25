@@ -33,10 +33,8 @@ export function LoginForm({ className, ...props }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      console.log("Login Response:", response.data);
-
       // Store access_token TEMPORARILY in sessionStorage
-      sessionStorage.setItem("temp_access_token", response.data.access_token);
+      document.cookie = `access_token=${response.data.access_token}; path=/; Secure`;
 
       // Store user ID for OTP verification
       setUserId(response.data.user_id);
@@ -98,6 +96,14 @@ export function LoginForm({ className, ...props }) {
               )}
             </div>
           </form>
+          {/* Right side: Image */}
+          <div className="hidden md:flex items-center justify-center bg-white-100 p-4">
+            <img
+              src="login-illustration.png"
+              alt="Register Illustration"
+              className="w-3/4 h-auto max-w-xs object-contain"
+            />
+          </div>
         </CardContent>
       </Card>
     </div>

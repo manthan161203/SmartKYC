@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { getAccessToken } from "@/utils/getAccessToken"; // ✅ Import the function
 
 export function VerifyOTP({ userId, onSuccess }) {
   const [otpCode, setOtpCode] = useState("");
@@ -18,29 +19,25 @@ export function VerifyOTP({ userId, onSuccess }) {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:8000/auth/verify-otp", {
-        user_id: userId,
-        otp_code: otpCode,
-      });
-
-      console.log("OTP Verification Response:", response.data);
-
-      // Retrieve the temporarily stored token
-      const tempToken = sessionStorage.getItem("temp_access_token");
-
-      if (!tempToken) {
-        toast.error("Session expired. Please log in again.", { position: "top-right" });
+      const token = getAccessToken(); // ✅ Get token from cookies
+      if (!token) {
+        toast.error("Unauthorized! No access token found.", { position: "top-right" });
         return;
       }
 
-      // Store access_token in cookies (WITHOUT HttpOnly)
-      document.cookie = `access_token=${tempToken}; path=/; Secure`;
+      const response = await axios.post(
+        "http://localhost:8000/auth/verify-otp",
+        { user_id: userId, otp_code: otpCode },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      // Clear temporary token
-      sessionStorage.removeItem("temp_access_token");
-
+      console.log("OTP Verification Response:", response.data);
       toast.success("OTP Verified! Redirecting...", { position: "top-right" });
-      onSuccess(); // Call the success function (navigate to dashboard, etc.)
+      onSuccess();
     } catch (err) {
       toast.error(err.response?.data?.detail || "Invalid OTP. Try again.", { position: "top-right" });
     } finally {
