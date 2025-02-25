@@ -11,16 +11,16 @@ export function LoginForm({ className, ...props }) {
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-
+      {/* Back Button */}
+      <Button
+        variant="outline"
+        onClick={() => navigate("/")}
+        className="w-10 h-10 rounded-full flex items-center justify-center"
+      >
+        <ArrowLeft className="w-5 h-5" />
+      </Button>
       <Card className="overflow-hidden">
-        {/* Back Button */}
-        <Button
-          variant="outline"
-          onClick={() => navigate("/")}
-          className="w-10 h-10 rounded-full flex items-center justify-center"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
+
         <CardContent className="grid p-0 md:grid-cols-2">
           {/* Left side: Login Form */}
           <form className="p-6 md:p-8">
