@@ -1,5 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "@/utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ export default function VerifyOTPPopup({ isOpen, onClose, userId }) {
         return;
       }
 
-      await axios.post(
+      await api.post(
         "http://localhost:8000/auth/verify-otp",
         { user_id: userId, otp_code: otpCode },
         { headers: { Authorization: `Bearer ${token}` } }
