@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { ForgotPasswordPopup } from "@/components/auth/ForgotPasswordPopup";
-// import { VerifyOTP } from "@/components/ui/VerifyOTP"; // ❌ Commented out OTP component
+// import { VerifyOTP } from "@/components/ui/VerifyOTPLogin"; // ❌ Commented out OTP component
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
