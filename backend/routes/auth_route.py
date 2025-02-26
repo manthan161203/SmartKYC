@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from backend.schemas.otp_schema import VerifyOTPSchema
 from backend.services.auth_service import AuthService
-from backend.schemas.auth_schema import RegisterSchema, ChangePasswordSchema
+from backend.schemas.auth_schema import ForgotPasswordSchema, RegisterSchema, ChangePasswordSchema, ResetPasswordSchema
 from backend.config.database import get_db
 from backend.utils.jwt_middleware import get_current_user
 
@@ -24,6 +24,14 @@ async def login_user(
 @router.post("/verify-otp")
 async def verify_otp(otp_data: VerifyOTPSchema, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     return await auth_service.verify_otp(otp_data, db)
+
+@router.post("/forgot-password")
+async def forgot_password(request: ForgotPasswordSchema, db: Session = Depends(get_db)):
+    return await AuthService.forgot_password(request.email, db)
+
+@router.post("/reset-password")
+async def reset_password(request: ResetPasswordSchema, db: Session = Depends(get_db)):
+    return await AuthService.reset_password(request.token, request.new_password, db)
 
 @router.post("/change-password")
 async def change_password(

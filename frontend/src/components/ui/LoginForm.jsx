@@ -1,24 +1,22 @@
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
-import { VerifyOTP } from "@/components/ui/VerifyOTP"; // Import new component
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { ForgotPasswordPopup } from "@/components/auth/ForgotPasswordPopup";
+import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
-export function LoginForm({ className, ...props }) {
+export function LoginForm() {
   const navigate = useNavigate();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [otpStep, setOtpStep] = useState(false);
-  const [userId, setUserId] = useState(null); // Store user ID for OTP verification
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -33,26 +31,20 @@ export function LoginForm({ className, ...props }) {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // Store access_token TEMPORARILY in sessionStorage
       document.cookie = `access_token=${response.data.access_token}; path=/; Secure`;
-
-      // Store user ID for OTP verification
-      setUserId(response.data.user_id);
-
-      // Switch to OTP step
-      setOtpStep(true);
-      toast.info("OTP sent to your email", { position: "top-right" });
-
+      navigate("/");
     } catch (err) {
-      toast.error(err.response?.data?.detail || "Invalid credentials. Please try again.", { position: "top-right" });
+      toast.error(err.response?.data?.detail || "Invalid credentials.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className="flex flex-col gap-6">
       <ToastContainer />
+      <ForgotPasswordPopup isOpen={showForgotPassword} onClose={() => setShowForgotPassword(false)} />
+
       <Button variant="outline" onClick={() => navigate("/")} className="w-10 h-10 rounded-full flex items-center justify-center">
         <ArrowLeft className="w-5 h-5" />
       </Button>
@@ -62,47 +54,40 @@ export function LoginForm({ className, ...props }) {
           <form className="p-6 md:p-8" onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">{otpStep ? "Enter OTP" : "Welcome back"}</h1>
-                <p className="text-gray-500">{otpStep ? "Check your email for the OTP" : "Login to your account"}</p>
+                <h1 className="text-2xl font-bold">Welcome back</h1>
+                <p className="text-gray-500">Login to your account</p>
               </div>
 
-              {!otpStep ? (
-                <>
-                  {/* Username Input */}
-                  <div className="grid gap-2">
-                    <Label htmlFor="username">Email or Phone Number</Label>
-                    <Input id="username" type="text" placeholder="Enter email or phone number" value={username} onChange={(e) => setUsername(e.target.value)} required />
-                  </div>
+              {/* Username Input */}
+              <div className="grid gap-2">
+                <Label htmlFor="username">Email</Label>
+                <Input id="username" type="email" placeholder="Enter email" value={username} onChange={(e) => setUsername(e.target.value)} required />
+              </div>
 
-                  {/* Password Input */}
-                  <div className="grid gap-2 relative">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Input id="password" type={showPassword ? "text" : "password"} value={password} placeholder="Enter Password" onChange={(e) => setPassword(e.target.value)} required />
-                      <button type="button" className="absolute right-3 top-3" onClick={() => setShowPassword(!showPassword)}>
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    <a href="#" className="text-sm text-gray-600 hover:text-black font-medium self-end">Forgot your password?</a>
-                  </div>
+              {/* Password Input */}
+              <div className="grid gap-2 relative">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input id="password" type={showPassword ? "text" : "password"} value={password} placeholder="Enter Password" onChange={(e) => setPassword(e.target.value)} required />
+                  <button type="button" className="absolute right-3 top-3" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <button type="button" onClick={() => setShowForgotPassword(true)} className="text-sm text-gray-600 hover:text-black font-medium self-end">
+                  Forgot your password?
+                </button>
+              </div>
 
-                  {/* Login Button */}
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Logging in..." : "Login"}
-                  </Button>
-                </>
-              ) : (
-                <VerifyOTP userId={userId} onSuccess={() => navigate("/")} />
-              )}
+              {/* Login Button */}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </Button>
             </div>
           </form>
-          {/* Right side: Image */}
+
+          {/* Right side: Illustration */}
           <div className="hidden md:flex items-center justify-center bg-white-100 p-4">
-            <img
-              src="login-illustration.png"
-              alt="Register Illustration"
-              className="w-3/4 h-auto max-w-xs object-contain"
-            />
+            <img src="login-illustration.png" alt="Login Illustration" className="w-3/4 h-auto max-w-xs object-contain" />
           </div>
         </CardContent>
       </Card>

@@ -205,6 +205,62 @@ class AuthService:
             raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
     @staticmethod
+    async def forgot_password(email: str, db: Session):
+        """
+        Generate a reset password token and send the reset link via email.
+        """
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Generate reset token (valid for 30 minutes)
+        reset_token = TokenUtils.generate_token(user.email, "reset_password", expires_in=30)
+
+        # Construct password reset link
+        reset_link = f"http://localhost:5173/reset-password?token={reset_token}"
+
+        # Send email using the email utility
+        email_sent = send_email(
+            to_email=user.email,
+            full_name=user.full_name,
+            email_type="reset_password",
+            reset_link=reset_link
+        )
+
+        if not email_sent:
+            raise HTTPException(status_code=500, detail="Failed to send password reset email")
+
+        return {"message": "Password reset email sent successfully."}
+
+    @staticmethod
+    async def reset_password(token: str, new_password: str, db: Session):
+        """
+        Verify reset token and update the user's password.
+        """
+        # Validate the token
+        try:
+            email = TokenUtils.verify_token(token, "reset_password")
+        except HTTPException as e:
+            raise HTTPException(status_code=e.status_code, detail=e.detail)
+
+        # Find the user
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        print(f"User found: {user.full_name}")
+        print(f"New password: {new_password}")
+        
+        # Hash the new password using SecurityUtils
+        hashed_password = SecurityUtils.hash_password(new_password)
+
+        # Update password
+        user.password = hashed_password
+        db.commit()
+
+        return {"message": "Password reset successful."}
+    
+    @staticmethod
     async def change_password(cp_data: ChangePasswordSchema, db: Session):
         """Change user password after verifying current password."""
         try:

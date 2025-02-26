@@ -32,3 +32,12 @@ class ResetPasswordSchema(BaseModel):
     current_password: str
     new_password: str
     confirm_new_password: str
+
+# ------------------ Forgot Password Schema ------------------
+class ForgotPasswordSchema(BaseModel):
+    email: EmailStr
+
+# ------------------ Reset Password Schema ------------------
+class ResetPasswordSchema(BaseModel):
+    token: str
+    new_password: str
