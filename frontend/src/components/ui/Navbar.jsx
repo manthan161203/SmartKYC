@@ -5,7 +5,7 @@ import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", current: true },
+  { name: "Dashboard", href: "/", current: true },
   { name: "Team", href: "/team", current: false },
   { name: "Projects", href: "/projects", current: false },
   { name: "Calendar", href: "/calendar", current: false },
