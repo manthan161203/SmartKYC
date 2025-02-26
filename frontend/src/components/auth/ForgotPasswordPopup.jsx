@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 export function ForgotPasswordPopup({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
@@ -31,8 +32,11 @@ export function ForgotPasswordPopup({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <Card className="w-[90%] max-w-sm bg-white p-6 rounded-lg shadow-md">
+    <div className="fixed inset-0 flex justify-center items-center z-50">
+      {/* Background overlay with blur effect */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose}></div>
+
+      <Card className="relative w-[90%] max-w-sm bg-white p-6 rounded-lg shadow-xl">
         <CardContent>
           <h4 className="text-lg font-semibold text-center mb-4">Forgot Password</h4>
           <Label htmlFor="email">Enter your email</Label>
@@ -45,7 +49,7 @@ export function ForgotPasswordPopup({ isOpen, onClose }) {
             className="w-full mb-4"
           />
           <Button onClick={handleForgotPassword} disabled={loading} className="w-full">
-            {loading ? "Sending..." : "Send Reset Link"}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Reset Link"}
           </Button>
           <Button variant="outline" onClick={onClose} className="w-full mt-2">
             Cancel
