@@ -255,7 +255,7 @@ class AuthService:
         hashed_password = SecurityUtils.hash_password(new_password)
 
         # Update password
-        user.password = hashed_password
+        user.hashed_password = hashed_password
         db.commit()
 
         return {"message": "Password reset successful."}
