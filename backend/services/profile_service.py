@@ -6,7 +6,6 @@ from backend.schemas.profile_schema import GenderTypeResponse
 
 class ProfileService:
     async def get_gender_types(self, current_user, db: Session):
-        """Fetch all gender types with proper error handling."""
         try:
             genders = db.query(GenderType).all()
             

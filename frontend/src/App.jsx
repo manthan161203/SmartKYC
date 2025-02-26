@@ -1,12 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ProtectedAuthRoute } from "@/components/Protector/ProtectedAuthRoute";
+import { ProtectedOTPRoute } from "@/components/Protector/ProtectedOTPRoute";
 import Landing from "@/pages/Landing";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
-import { ProtectedAuthRoute } from "@/components/ui/ProtectedAuthRoute"; // Protect login/register
 import ResetPasswordPage from "./pages/ResetPasswordPage";
-import { ProtectedOTPRoute } from "@/components/ui/ProtectedOTPRoute"; // Protect OTP verification
-// import { ProtectedRoute } from "@/components/ui/ProtectedRoute"; // Protect main app routes
-import { VerifyOTP } from "@/components/ui/VerifyOTP";
+import { VerifyOTP } from "@/components/auth/VerifyOTP";
 
 function App() {
   return (

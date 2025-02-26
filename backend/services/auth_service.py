@@ -76,7 +76,7 @@ class AuthService:
 
             otp_response = await AuthService.generate_and_store_otp(user.id, db)
             access_token = TokenUtils.generate_token(identifier=user.email, purpose="auth")
-
+            print(f"Access token: {access_token}")
             return {
                 "message": "Login successful. OTP sent to your registered email/phone.",
                 "user_id": user.id,

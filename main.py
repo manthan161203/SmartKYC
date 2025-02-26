@@ -5,6 +5,7 @@ from backend.config.database import init_db
 from backend.utils.jwt_middleware import get_current_user
 from backend.utils.seed_data import seed_reference_tables
 from backend.routes.auth_route import router as auth_router
+from backend.routes.user_route import router as user_router
 from backend.routes.profile_route import router as profile_router  # Updated
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -42,7 +43,8 @@ app.add_middleware(
 
 # Register routers
 app.include_router(auth_router)
-app.include_router(profile_router, dependencies=[Depends(get_current_user)])
+# app.include_router(profile_router, dependencies=[Depends(get_current_user)])
+app.include_router(user_router, dependencies=[Depends(get_current_user)])
 
 @app.get("/", tags=["Root"])
 async def read_root():
