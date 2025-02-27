@@ -146,6 +146,26 @@ class AuthService:
             raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
 
     @staticmethod
+    async def verify_email(current_user: str, db: Session):
+        """Verify user email address."""
+        try:
+            user = db.query(User).filter(User.email == current_user).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found.")
+
+            user.is_email_verified = True
+            db.commit()
+            return {"message": "Email verified successfully."}
+
+        except SQLAlchemyError:
+            db.rollback()
+            raise HTTPException(status_code=500, detail="Database error occurred.")
+
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+        
+    @staticmethod
     async def forgot_password(email: str, db: Session):
         """
         Generate a reset password token and send the reset link via email.

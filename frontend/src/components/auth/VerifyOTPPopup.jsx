@@ -1,18 +1,14 @@
 import { useState } from "react";
-import api from "@/utils/api";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import { getAccessToken } from "@/utils/getAccessToken";
 import { Loader2 } from "lucide-react";
 
-export default function VerifyOTPPopup({ isOpen, onClose }) {
+export default function VerifyOTPPopup({ isOpen, onClose, onVerifySuccess }) {
   const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleVerifyOTP = async () => {
     if (otpCode.length !== 6) {
@@ -23,22 +19,9 @@ export default function VerifyOTPPopup({ isOpen, onClose }) {
     setLoading(true);
 
     try {
-      const token = getAccessToken();
-      if (!token) {
-        toast.error("Unauthorized! No access token found.");
-        setLoading(false);
-        return;
-      }
-
-      // Send OTP for verification, no need to pass user_id
-      await api.post(
-        "http://localhost:8000/auth/verify-otp",
-        { otp_code: otpCode },  // Removed user_id here
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      await onVerifySuccess(otpCode); // Call the provided verification function
       toast.success("OTP verified successfully!");
-      navigate("/");
+      onClose();
     } catch (err) {
       toast.error(err.response?.data?.detail || "Invalid OTP, please try again.");
     } finally {
@@ -57,7 +40,7 @@ export default function VerifyOTPPopup({ isOpen, onClose }) {
         <h4 className="text-lg font-semibold text-center mb-4">Verify OTP</h4>
         <Label htmlFor="otp" className="mb-2 text-center">Enter OTP</Label>
 
-        {/* Centered OTP Group & Added Gap Below */}
+        {/* OTP Input */}
         <div className="flex justify-center w-full mb-6">
           <InputOTP
             maxLength={6}
@@ -68,17 +51,14 @@ export default function VerifyOTPPopup({ isOpen, onClose }) {
             className="flex justify-center gap-3"
           >
             <InputOTPGroup className="flex justify-center gap-3">
-              <InputOTPSlot index={0} />
-              <InputOTPSlot index={1} />
-              <InputOTPSlot index={2} />
-              <InputOTPSlot index={3} />
-              <InputOTPSlot index={4} />
-              <InputOTPSlot index={5} />
+              {[...Array(6)].map((_, index) => (
+                <InputOTPSlot key={index} index={index} />
+              ))}
             </InputOTPGroup>
           </InputOTP>
         </div>
 
-        {/* Added Extra Gap Below OTP Box */}
+        {/* Verify & Cancel Buttons */}
         <Button onClick={handleVerifyOTP} disabled={loading} className="w-full mb-3">
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify OTP"}
         </Button>

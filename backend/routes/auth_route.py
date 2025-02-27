@@ -29,6 +29,10 @@ async def request_otp(db: Session = Depends(get_db), current_user: str = Depends
 async def verify_otp(otp_data: VerifyOTPSchema, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     return await auth_service.verify_otp(otp_data, db, current_user)
 
+@router.post("/verify-email")
+async def verify_email(current_user: str = Depends(get_current_user), db: Session = Depends(get_db)):
+    return await auth_service.verify_email(current_user, db)
+
 @router.post("/forgot-password")
 async def forgot_password(request: ForgotPasswordSchema, db: Session = Depends(get_db)):
     return await AuthService.forgot_password(request.email, db)
