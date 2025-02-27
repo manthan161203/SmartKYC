@@ -14,6 +14,8 @@ import { Loader2 } from "lucide-react";
 import api from "@/utils/api";
 import { getAccessToken } from "@/utils/getAccessToken";
 import VerifyOTPPopup from "@/components/auth/VerifyOTPPopup";
+import { toast } from "react-toastify";
+
 
 const Profile = ({ isOpen, setIsOpen }) => {
     const [user, setUser] = useState(null);
@@ -69,11 +71,14 @@ const Profile = ({ isOpen, setIsOpen }) => {
                 headers: { Authorization: `Bearer ${getAccessToken()}` },
             });
 
+            toast.success(`OTP sent to your ${type}.`, { position: "top-right" });
+
             setOtpType(type);
             setShowOTPPopup(true);
             setIsOpen(false); // Close profile modal after OTP request is sent
         } catch (error) {
             console.error("Error requesting OTP:", error);
+            toast.error(error.response?.data?.detail || "Failed to send OTP.", { position: "top-right" });
         } finally {
             if (type === "email") setIsEmailLoading(false);
             if (type === "phone") setIsPhoneLoading(false);
@@ -84,11 +89,19 @@ const Profile = ({ isOpen, setIsOpen }) => {
     const verifyOTP = async (otpCode) => {
         const endpoint = otpType === "email" ? "/auth/verify-email" : "/auth/verify-phone";
 
-        await api.post(endpoint, { otp_code: otpCode }, {
-            headers: { Authorization: `Bearer ${getAccessToken()}` },
-        });
+        try {
+            await api.post(endpoint, { otp_code: otpCode }, {
+                headers: { Authorization: `Bearer ${getAccessToken()}` },
+            });
 
-        // Optionally refresh user data or update UI state
+            toast.success("OTP verified successfully!", { position: "top-right" });
+
+            fetchUserProfile(); // Refresh user data after verification
+            setShowOTPPopup(false);
+        } catch (error) {
+            console.error("Error verifying OTP:", error);
+            toast.error(error.response?.data?.detail || "Invalid OTP, please try again.", { position: "top-right" });
+        }
     };
 
     const getInitials = (name) => {
@@ -141,7 +154,7 @@ const Profile = ({ isOpen, setIsOpen }) => {
                                         />
                                     </div>
 
-                                    <div className="space-y-6 pr-4">
+                                    <div className="space-y-6">
                                         {/* Email Verification */}
                                         <div className="grid grid-cols-4 items-center gap-4">
                                             <Label className="text-right">Email</Label>
