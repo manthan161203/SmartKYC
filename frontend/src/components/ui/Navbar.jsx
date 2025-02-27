@@ -31,7 +31,7 @@ const Navbar = () => {
 
   return (
     <Disclosure as="nav" className="bg-[#1E1E1E] text-gray-700 shadow-lg">
-      <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full px-2S">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile Menu Button */}
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -81,15 +81,15 @@ const Navbar = () => {
                   <span className="sr-only">Open user menu</span>
                   <img
                     alt="User Avatar"
-                    src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src="/user.png"
                     className="w-8 h-8 rounded-full"
                   />
                 </MenuButton>
-                <MenuItems className="absolute right-0 mt-2 min-w-[10rem] bg-gray-700 text-white shadow-lg rounded-md py-1 z-50 border border-gray-600">
+                <MenuItems className="absolute right-0 mt-2 min-w-[100px] bg-gray-700 text-white shadow-lg rounded-md py-1 z-50 border border-gray-600">
                   <MenuItem>
                     <button
                       onClick={() => setIsProfileOpen(true)}
-                      className="block w-full px-4 py-2 text-sm text-right hover:bg-gray-600"
+                      className="block w-full px-4 py-2 text-sm text-center hover:bg-gray-600"
                     >
                       Profile
                     </button>
@@ -97,7 +97,7 @@ const Navbar = () => {
                   <MenuItem>
                     <button
                       onClick={() => navigate("/settings")}
-                      className="block w-full px-4 py-2 text-sm text-right hover:bg-gray-600"
+                      className="block w-full px-4 py-2 text-sm text-center hover:bg-gray-600"
                     >
                       Settings
                     </button>
@@ -105,7 +105,7 @@ const Navbar = () => {
                   <MenuItem>
                     <button
                       onClick={handleLogout}
-                      className="block w-full px-4 py-2 text-sm text-right text-red-500 hover:bg-gray-600"
+                      className="block w-full px-4 py-2 text-sm text-center text-red-500 hover:bg-gray-600"
                     >
                       Sign Out
                     </button>
