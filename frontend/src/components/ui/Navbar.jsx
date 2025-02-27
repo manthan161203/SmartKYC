@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { Bars3Icon, BellIcon } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/button";
+import Profile from "@/components/ui/Profile";
 
 const navigation = [
   { name: "Dashboard", href: "/", current: true },
@@ -17,7 +18,7 @@ function classNames(...classes) {
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const isAuthenticated = () => {
     return document.cookie.split("; ").some((cookie) => cookie.startsWith("access_token="));
@@ -30,7 +31,7 @@ const Navbar = () => {
 
   return (
     <Disclosure as="nav" className="bg-[#1E1E1E] text-gray-700 shadow-lg">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Mobile Menu Button */}
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -86,17 +87,26 @@ const Navbar = () => {
                 </MenuButton>
                 <MenuItems className="absolute right-0 mt-2 min-w-[10rem] bg-gray-700 text-white shadow-lg rounded-md py-1 z-50 border border-gray-600">
                   <MenuItem>
-                    <button onClick={() => navigate("/profile")} className="block w-full px-4 py-2 text-sm text-right hover:bg-gray-600">
-                      Your Profile
+                    <button
+                      onClick={() => setIsProfileOpen(true)}
+                      className="block w-full px-4 py-2 text-sm text-right hover:bg-gray-600"
+                    >
+                      Profile
                     </button>
                   </MenuItem>
                   <MenuItem>
-                    <button onClick={() => navigate("/settings")} className="block w-full px-4 py-2 text-sm text-right hover:bg-gray-600">
+                    <button
+                      onClick={() => navigate("/settings")}
+                      className="block w-full px-4 py-2 text-sm text-right hover:bg-gray-600"
+                    >
                       Settings
                     </button>
                   </MenuItem>
                   <MenuItem>
-                    <button onClick={handleLogout} className="block w-full px-4 py-2 text-sm text-right text-red-500 hover:bg-gray-600">
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full px-4 py-2 text-sm text-right text-red-500 hover:bg-gray-600"
+                    >
                       Sign Out
                     </button>
                   </MenuItem>
@@ -115,6 +125,9 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Sheet */}
+      <Profile isOpen={isProfileOpen} setIsOpen={setIsProfileOpen} />
 
       {/* Mobile Menu Panel */}
       <DisclosurePanel className="sm:hidden bg-[#252525]">

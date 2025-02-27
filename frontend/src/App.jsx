@@ -6,6 +6,7 @@ import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyOTPPopup from "@/components/auth/VerifyOTPPopup"; // ✅ Correct
+import Profile from "./components/ui/Profile";
 
 function App() {
   return (
@@ -21,7 +22,7 @@ function App() {
         </Route>
 
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-
+        <Route path="/profile" element={<Profile />}></Route>
         {/* OTP verification route */}
         <Route element={<ProtectedOTPRoute />}>
           <Route path="/verify-otp" element={<VerifyOTPPopup />} />

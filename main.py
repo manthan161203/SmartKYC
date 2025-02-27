@@ -6,7 +6,6 @@ from backend.utils.jwt_middleware import get_current_user
 from backend.utils.seed_data import seed_reference_tables
 from backend.routes.auth_route import router as auth_router
 from backend.routes.user_route import router as user_router
-from backend.routes.profile_route import router as profile_router  # Updated
 from fastapi.middleware.cors import CORSMiddleware
 
 
