@@ -50,5 +50,6 @@ async def change_password(
     password_data: ChangePasswordSchema,
     current_user: str = Depends(get_current_user),
     db: Session = Depends(get_db)
-):
+):  
+    print(current_user)
     return await auth_service.change_password(password_data, current_user, db)

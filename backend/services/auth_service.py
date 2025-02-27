@@ -255,9 +255,7 @@ class AuthService:
     async def change_password(cp_data: ChangePasswordSchema, email: str, db: Session):
         """Change user password after verifying current password."""
         try:
-            user = db.query(User).filter(
-                or_(User.email == email, User.phone_number == email)
-            ).first()
+            user = db.query(User).filter(User.email == email).first()
 
             if not user:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")

@@ -52,11 +52,22 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      toast.error("Unauthorized! Please login again.");
-      clearAccessToken(); // ✅ Clears token from cookies on 401
-      window.location.href = "/login";
+    if (error.response) {
+      const { status, config } = error.response;
+
+      // ✅ Ignore 401 errors from the change-password endpoint
+      if (status === 401 && config.url === "/auth/change-password") {
+        return Promise.reject(error); // Don't log out, just return the error
+      }
+
+      // ✅ Handle other 401 errors (expired token, invalid session)
+      if (status === 401) {
+        toast.error("Unauthorized! Please login again.");
+        clearAccessToken();
+        window.location.href = "/login";
+      }
     }
+
     return Promise.reject(error);
   }
 );

@@ -19,6 +19,11 @@ export function ChangePassword() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    // Function to remove access token from cookies
+    const clearAccessToken = () => {
+        document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure";
+    };
+
     // API Call to Change Password
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -45,13 +50,18 @@ export function ChangePassword() {
                 {
                     headers: {
                         Authorization: `Bearer ${getAccessToken()}`, // ✅ Explicitly setting the token
-                        "Content-Type": "application/json",
                     },
                 }
             );
 
-            toast.success("Password changed successfully! Redirecting...");
-            setTimeout(() => navigate("/"), 2000);
+            // ✅ Password changed successfully
+            toast.success("Password changed successfully! Redirecting to login...");
+
+            // ✅ Clear token and redirect to login
+            clearAccessToken();
+            setTimeout(() => {
+                window.location.href = "/login"; // Force redirect
+            }, 2000);
         } catch (err) {
             toast.error(err.response?.data?.detail || "Failed to change password.");
         } finally {
@@ -155,7 +165,7 @@ export function ChangePassword() {
                     {/* Right side: Illustration */}
                     <div className="hidden md:flex items-center justify-center bg-white-100 p-4">
                         <img
-                            src="change-password-illustration.png"
+                            src="login-illustration.png"
                             alt="Change Password"
                             className="w-3/4 h-auto max-w-xs object-contain"
                         />
