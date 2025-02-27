@@ -25,6 +25,10 @@ async def login_user(
 async def request_otp(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     return await auth_service.generate_and_store_otp(current_user, db)
 
+@router.post("/resend-otp")
+async def resend_otp(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+    return await auth_service.resend_otp(current_user, db)
+
 @router.post("/verify-otp")
 async def verify_otp(otp_data: VerifyOTPSchema, db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     return await auth_service.verify_otp(otp_data, db, current_user)

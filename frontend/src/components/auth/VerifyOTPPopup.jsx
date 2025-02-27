@@ -5,10 +5,13 @@ import { Label } from "@/components/ui/label";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Loader2 } from "lucide-react";
+import api from "@/utils/api";
+import { getAccessToken } from "@/utils/getAccessToken";
 
 export default function VerifyOTPPopup({ isOpen, onClose, onVerifySuccess }) {
   const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
 
   const handleVerifyOTP = async () => {
     if (otpCode.length !== 6) {
@@ -26,6 +29,20 @@ export default function VerifyOTPPopup({ isOpen, onClose, onVerifySuccess }) {
       toast.error(err.response?.data?.detail || "Invalid OTP, please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setResendLoading(true);
+    try {
+      await api.post("/auth/resend-otp", {}, {
+        headers: { Authorization: `Bearer ${getAccessToken()}` },
+      });
+      toast.success("OTP resent successfully! Please check your email or phone.");
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to resend OTP. Try again.");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -62,7 +79,13 @@ export default function VerifyOTPPopup({ isOpen, onClose, onVerifySuccess }) {
         <Button onClick={handleVerifyOTP} disabled={loading} className="w-full mb-3">
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Verify OTP"}
         </Button>
-        <Button variant="outline" onClick={onClose} className="w-full">
+
+        {/* Resend OTP Button */}
+        <Button onClick={handleResendOTP} disabled={resendLoading} variant="outline" className="w-full">
+          {resendLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Resend OTP"}
+        </Button>
+
+        <Button variant="ghost" onClick={onClose} className="w-full mt-2">
           Cancel
         </Button>
       </div>

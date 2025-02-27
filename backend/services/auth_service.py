@@ -116,7 +116,37 @@ class AuthService:
 
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    
+    @staticmethod
+    async def resend_otp(current_user: str, db: Session):
+        """Resend OTP to user's email or phone number."""
+        try:
+            user = db.query(User).filter(User.email == current_user).first()
+            
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found.")
+
+            # Fetch user's full name
+            full_name = user.full_name
+
+            # Generate new OTP
+            otp_code = SecurityUtils.generate_otp()
+
+            # Get OTP expiry time from settings use when storing OTP in Redis
+            otp_expiry_seconds = settings.OTP_EXPIRY_TIME
+
+            REDIS_CLIENT.setex(f"otp:{user.id}", otp_expiry_seconds, otp_code)
+
+            # Send OTP via email
+            email_sent = send_email(user.email, full_name, "otp", otp_code)
+            if not email_sent:
+                raise HTTPException(status_code=500, detail="Failed to send OTP via email.")
+            
+            return {"message": "OTP resent successfully", "otp": otp_code}  # Remove OTP from response in production.
         
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+
     @staticmethod
     async def verify_otp(otp_data: VerifyOTPSchema, db: Session, current_user: str):
         """Verify OTP for a user, with the option of using Redis or SQL database."""
