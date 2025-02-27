@@ -17,7 +17,6 @@ class LoginSchema(BaseModel):
 
 # ------------------ Change Password Schema ------------------
 class ChangePasswordSchema(BaseModel):
-    identifier: str
     current_password: str
     new_password: str
     confirm_new_password: str

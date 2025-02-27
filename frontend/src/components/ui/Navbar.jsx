@@ -104,7 +104,7 @@ const Navbar = () => {
                     </MenuItem>
                     <MenuItem>
                       <button
-                        onClick={() => navigate("/billing")}
+                        onClick={() => navigate("/change-password")}
                         className="block w-full px-4 py-2 text-sm text-left hover:bg-gray-600"
                       >
                         Change Password

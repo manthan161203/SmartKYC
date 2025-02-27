@@ -252,13 +252,11 @@ class AuthService:
         return {"message": "Password reset successful."}
     
     @staticmethod
-    async def change_password(cp_data: ChangePasswordSchema, db: Session):
+    async def change_password(cp_data: ChangePasswordSchema, email: str, db: Session):
         """Change user password after verifying current password."""
         try:
-            identifier = cp_data.identifier
-
             user = db.query(User).filter(
-                or_(User.email == identifier, User.phone_number == identifier)
+                or_(User.email == email, User.phone_number == email)
             ).first()
 
             if not user:
