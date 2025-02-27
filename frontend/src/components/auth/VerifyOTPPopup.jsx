@@ -1,5 +1,4 @@
 import { useState } from "react";
-// import axios from "axios";
 import api from "@/utils/api";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -10,7 +9,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { getAccessToken } from "@/utils/getAccessToken";
 import { Loader2 } from "lucide-react";
 
-export default function VerifyOTPPopup({ isOpen, onClose, userId }) {
+export default function VerifyOTPPopup({ isOpen, onClose }) {
   const [otpCode, setOtpCode] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -31,9 +30,10 @@ export default function VerifyOTPPopup({ isOpen, onClose, userId }) {
         return;
       }
 
+      // Send OTP for verification, no need to pass user_id
       await api.post(
         "http://localhost:8000/auth/verify-otp",
-        { user_id: userId, otp_code: otpCode },
+        { otp_code: otpCode },  // Removed user_id here
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -86,7 +86,6 @@ export default function VerifyOTPPopup({ isOpen, onClose, userId }) {
           Cancel
         </Button>
       </div>
-
     </div>
   );
 }
