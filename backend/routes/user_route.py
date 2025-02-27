@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from backend.config.database import get_db
 from backend.services.user_service import UserService
-from backend.schemas.user_schema import UserSchema
+from backend.schemas.user_schema import UserSchema, EditUserSchema
 from backend.utils.jwt_middleware import get_current_user
 
 router = APIRouter(prefix="/user", tags=["User"])
@@ -15,3 +15,12 @@ async def get_user_detail(
 ):
     user = await UserService.get_user_by_email(current_user, db)
     return user
+
+@router.put("/edit", response_model=UserSchema)
+async def update_user_profile(
+    user_data: EditUserSchema,
+    current_user: str = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    updated_user = await UserService.edit_user(db, current_user, user_data)
+    return updated_user
