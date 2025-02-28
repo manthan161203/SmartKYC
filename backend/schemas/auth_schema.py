@@ -28,7 +28,6 @@ class RequestPasswordResetSchema(BaseModel):
 # ------------------ Reset Password Schema ------------------
 class ResetPasswordSchema(BaseModel):
     token: str
-    current_password: str
     new_password: str
     confirm_new_password: str
 

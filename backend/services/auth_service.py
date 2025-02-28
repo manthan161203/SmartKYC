@@ -228,7 +228,6 @@ class AuthService:
         """
         Verify reset token and update the user's password.
         """
-        # Validate the token
         try:
             email = TokenUtils.verify_token(token, "reset_password")
         except HTTPException as e:

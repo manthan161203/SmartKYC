@@ -30,15 +30,18 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
+    
     if (!token) {
-      toast.error("Unauthorized! Please login.");
+      if (!config.url.includes("/public")) {  // ✅ Allow public routes
+        toast.error("Unauthorized! Please login.");
+      }
       throw new axios.Cancel("No access token found.");
     }
 
     if (isTokenExpired(token)) {
-      toast.error("Session expired. Please login again.");
+      toast.error("Session expired. Redirecting to login...");
       clearAccessToken(); // ✅ Clears expired token from cookies
-      window.location.href = "/login"; // Redirect to login page
+      setTimeout(() => (window.location.href = "/login"), 1500); // ✅ Redirect after a short delay
       throw new axios.Cancel("Token expired.");
     }
 
@@ -62,9 +65,9 @@ api.interceptors.response.use(
 
       // ✅ Handle other 401 errors (expired token, invalid session)
       if (status === 401) {
-        toast.error("Unauthorized! Please login again.");
+        toast.error("Unauthorized! Redirecting to login...");
         clearAccessToken();
-        window.location.href = "/login";
+        setTimeout(() => (window.location.href = "/login"), 1500); // ✅ Delay redirect to allow toast to show
       }
     }
 

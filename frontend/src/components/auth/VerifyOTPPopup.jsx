@@ -35,9 +35,7 @@ export default function VerifyOTPPopup({ isOpen, onClose, onVerifySuccess }) {
   const handleResendOTP = async () => {
     setResendLoading(true);
     try {
-      await api.post("/auth/resend-otp", {}, {
-        headers: { Authorization: `Bearer ${getAccessToken()}` },
-      });
+      await api.post("/auth/resend-otp"); // 🔹 No need to set headers, it's automatic now
       toast.success("OTP resent successfully! Please check your email or phone.");
     } catch (err) {
       toast.error(err.response?.data?.detail || "Failed to resend OTP. Try again.");
@@ -46,12 +44,15 @@ export default function VerifyOTPPopup({ isOpen, onClose, onVerifySuccess }) {
     }
   };
 
+
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 flex justify-center items-center z-50">
       {/* Background overlay */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={(e) => {
+        if (e.target === e.currentTarget) onClose(); // Only close if clicking on the background
+      }}></div>
 
       <div className="relative w-[90%] max-w-sm bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
         <h4 className="text-lg font-semibold text-center mb-4">Verify OTP</h4>

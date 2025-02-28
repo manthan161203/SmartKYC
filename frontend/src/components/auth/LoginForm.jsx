@@ -115,6 +115,15 @@ export function LoginForm() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Login"}
               </Button>
+              <p className="text-center text-xs text-gray-600">
+                Dont have an account?{" "}
+                <span
+                  onClick={() => navigate("/register")}
+                  className="font-semibold text-black hover:underline cursor-pointer"
+                >
+                  Register
+                </span>
+              </p>
             </div>
           </form>
 

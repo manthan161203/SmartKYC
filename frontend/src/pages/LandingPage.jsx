@@ -18,8 +18,6 @@ const Landing = () => {
         <Button className="mt-6">Get Started</Button>
       </main>
       
-
-      {/* Footer */}
       <footer className="p-6 text-center text-gray-600">
         &copy; 2025 Smart KYC. All rights reserved.
       </footer>
