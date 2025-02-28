@@ -15,6 +15,9 @@ import api from "@/utils/api";
 import { getAccessToken } from "@/utils/getAccessToken";
 import VerifyOTPPopup from "@/components/auth/VerifyOTPPopup";
 import { toast } from "react-toastify";
+import { Calendar } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Profile = ({ isOpen, setIsOpen }) => {
     const [user, setUser] = useState(null);
@@ -85,7 +88,7 @@ const Profile = ({ isOpen, setIsOpen }) => {
             case 3:
                 return { text: "Rejected", color: "bg-red-100 text-red-600", icon: <MdCancel size={18} /> };
             default:
-                return { text: "Unknown", color: "bg-gray-100 text-gray-600", icon: "❓" };
+                return { text: "Unknown", color: "bg-gray-100 text-gray-600", icon: "" };
         }
     };
 
@@ -363,24 +366,36 @@ const Profile = ({ isOpen, setIsOpen }) => {
                                     {/* DOB */}
                                     <div className="grid grid-cols-4 items-center gap-4">
                                         <Label className="text-right">DOB</Label>
-                                        <div className="col-span-3 flex flex-col gap-1">
-                                            <Input
-                                                name="dob"
-                                                type="date"
-                                                value={
-                                                    editMode
-                                                        ? (formData.dob ? formData.dob.slice(0, 10) : "")
-                                                        : (user.dob ? user.dob.slice(0, 10) : "-")
-                                                }
-                                                onChange={handleChange}
-                                                readOnly={!editMode}
-                                                className="bg-gray-100 pr-4"
-                                            />
+                                        <div className="col-span-3">
+                                            {editMode ? (
+                                                <DatePicker
+                                                    selected={formData.dob ? new Date(formData.dob) : null}
+                                                    onChange={(date) =>
+                                                        setFormData({ ...formData, dob: date ? date.toISOString() : "" })
+                                                    }
+                                                    dateFormat="yyyy-MM-dd"
+                                                    customInput={
+                                                        <Input
+                                                            name="dob"
+                                                            className="bg-gray-100 pr-4"
+                                                        />
+                                                    }
+                                                />
+                                            ) : (
+                                                <Input
+                                                    name="dob"
+                                                    type="text"
+                                                    value={user.dob ? user.dob.slice(0, 10) : "-"}
+                                                    readOnly
+                                                    className="bg-gray-100 pr-4"
+                                                />
+                                            )}
                                             {editMode && errors.dob && (
                                                 <p className="text-red-500 text-xs">{errors.dob}</p>
                                             )}
                                         </div>
                                     </div>
+
 
                                     {/* Gender */}
                                     <div className="grid grid-cols-4 items-center gap-4">
