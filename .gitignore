@@ -4,7 +4,7 @@ __pycache__/
 *.pyo
 # *.env
 venv/
-# .env
+.env
 kyc_env/
 
 # Ignore database files

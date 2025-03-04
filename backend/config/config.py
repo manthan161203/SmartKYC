@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     # CORS Configuration
     allow_origins: list[str] = ["*"]  # Configurable CORS origins
     
+    # OPENAI Configuration
+    OPENAI_KEY: str
+    
     class Config:
         """
         Configuration for Pydantic BaseSettings.
