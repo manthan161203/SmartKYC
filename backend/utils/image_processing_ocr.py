@@ -48,7 +48,12 @@ def grayscale(image):
 def binarize_image(img):
     try:
         gray_image = grayscale(img)
-        _, im_bw = cv2.threshold(gray_image, 210, 230, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        # Use adaptive thresholding for varying lighting conditions
+        im_bw = cv2.adaptiveThreshold(gray_image, 255,
+                                      cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                                      cv2.THRESH_BINARY,
+                                      blockSize=11,
+                                      C=2)
         return im_bw
     except Exception as e:
         logging.error("Error in binarize_image: %s", e)
@@ -100,9 +105,9 @@ def getSkewAngle(cvImage) -> float:
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 5))
         dilate = cv2.dilate(thresh, kernel, iterations=5)
         contours, _ = cv2.findContours(dilate, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        contours = sorted(contours, key=cv2.contourArea, reverse=True)
         if not contours:
             raise ValueError("No contours found for deskewing.")
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
         largestContour = contours[0]
         minAreaRect = cv2.minAreaRect(largestContour)
         angle = minAreaRect[-1]
@@ -137,10 +142,14 @@ def deskew(cvImage):
 def remove_borders(image):
     try:
         contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        cntsSorted = sorted(contours, key=lambda x: cv2.contourArea(x))
-        cnt = cntsSorted[-1]
-        x, y, w, h = cv2.boundingRect(cnt)
-        return image[y:y+h, x:x+w]
+        if contours:
+            cntsSorted = sorted(contours, key=lambda x: cv2.contourArea(x))
+            cnt = cntsSorted[-1]
+            x, y, w, h = cv2.boundingRect(cnt)
+            return image[y:y+h, x:x+w]
+        else:
+            logging.warning("No contours found for border removal; returning original image.")
+            return image
     except Exception as e:
         logging.error("Error in remove_borders: %s", e)
         raise
@@ -169,7 +178,7 @@ def ocr_easyocr_image(img):
     try:
         reader = easyocr.Reader(['en'])
         result = reader.readtext(img, detail=0, text_threshold=0.7,
-                                   low_text=0.3, link_threshold=0.5)
+                                low_text=0.3, link_threshold=0.5)
         text = " ".join(result)
         return clean_text(text)
     except Exception as e:
@@ -203,6 +212,7 @@ def process_image(image_path):
         raise
 
     try:
+        # You can experiment with different pre-processing paths
         inverted = invert_image(img)  # noqa: F841
         rescaled = rescale_image(img)  # noqa: F841
         im_bw = binarize_image(img)
@@ -212,6 +222,7 @@ def process_image(image_path):
         fixed = deskew(dilated_image)  # noqa: F841
         borders_removed = remove_borders(no_noise)
         image_with_border = add_border(borders_removed)  # noqa: F841
+        # Choose the final image for OCR based on testing (here we use the noise-removed image)
         final_img = no_noise
         logging.info("Image processing completed.")
     except Exception as e:
@@ -232,6 +243,5 @@ def process_image(image_path):
         "easyocr": easyocr_text,
         "paddleocr": paddleocr_text
     }
-    
     
     return json.dumps(result, indent=4)

@@ -44,10 +44,12 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
         prompt = (
             "Extract the full address as a single string from the OCR output below. "
             "The address is located after 'Address:' on the back of an Aadhaar card. "
-            "Remove any OCR noise and return the cleaned address. "
-            "Output as JSON with key 'address'.\n\n"
+            "Remove any OCR noise and meaningless words (such as garbled or spurious text) that do not contribute to a proper address. "
+            "Ensure that any Indian names or terms are correctly formatted. "
+            "Return the cleaned address as JSON with the key 'address'.\n\n"
             "OCR Output:\n" + combined_text
         )
+
     elif side.lower() == "pan_card":
         prompt = (
             "Extract the following fields from the OCR output below:\n"
