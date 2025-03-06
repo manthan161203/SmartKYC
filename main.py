@@ -2,11 +2,13 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 from backend.config.database import init_db, get_db
 from backend.utils.jwt_middleware import get_current_user
 from backend.utils.seed_data import seed_reference_tables
 from backend.routes.auth_route import router as auth_router
 from backend.routes.user_route import router as user_router
+from backend.routes.document_route import router as document_router
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config.config import settings
 from typing import AsyncGenerator, Dict
@@ -69,6 +71,9 @@ logger.info("🔐 Authentication routes registered.")
 app.include_router(user_router, dependencies=[Depends(get_current_user)])
 logger.info("👤 User routes registered (authentication required).")
 
+app.include_router(document_router)
+logging.info("Documents routes registered")
+
 # --------------------- API Endpoints ---------------------
 @app.get("/", tags=["Root"])
 async def read_root() -> Dict[str, str]:
@@ -93,7 +98,7 @@ async def health_check(db: Session = Depends(get_db)) -> Dict[str, str]:
         Dict[str, str]: Status of database connectivity.
     """
     try:
-        db.execute("SELECT 1")  # Simple DB test query
+        db.execute(text("SELECT 1"))  # Simple DB test query
         logger.info("✅ Health check successful: Database is connected.")
         return {"status": "ok", "message": "Database is connected"}
     except Exception as e:

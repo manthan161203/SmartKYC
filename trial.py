@@ -1,4 +1,4 @@
-from backend.utils.face_verification_utils import detect_faces, analyze_face, verify_faces
+# from backend.utils.face_verification_utils import detect_faces, analyze_face, verify_faces
 
 # print(detect_faces("backend/images/front.jpg"))
 # print(analyze_face("backend/images/front.jpg"))
@@ -31,3 +31,12 @@ from backend.utils.face_verification_utils import detect_faces, analyze_face, ve
 # pan_response = query_openai(prompt_pan)
 # cleaned_pan = remove_markdown(pan_response)
 # print("PAN Card Data:", cleaned_pan)
+
+
+# from supabase import create_client
+# from backend.config.config import settings
+
+# supabase = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+# response = supabase.storage.get_bucket("documents")
+
+# print(response)

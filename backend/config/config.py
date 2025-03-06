@@ -52,6 +52,15 @@ class Settings(BaseSettings):
     # OPENAI Configuration
     OPENAI_KEY: str
     
+    # Cloudinary Configuration
+    CLOUDINARY_CLOUD_NAME: str
+    CLOUDINARY_API_KEY: str
+    CLOUDINARY_API_SECRET: str
+    
+    # Supabase COnfiguration
+    SUPABASE_URL: str
+    SUPABASE_KEY: str
+    
     class Config:
         """
         Configuration for Pydantic BaseSettings.
@@ -73,6 +82,13 @@ class Settings(BaseSettings):
         Constructs and returns the Alembic database URL.
         """
         return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
+    @property
+    def CLOUDINARY_URL(self) -> str:
+        """
+        COnstructs and returns Cloudinary api environment variable 
+        """
+        return f"cloudinary://{self.CLOUDINARY_API_KEY}:{self.CLOUDINARY_API_SECRET}@{self.CLOUDINARY_CLOUD_NAME}"
 
 # --------------------- Load Settings ---------------------
 try:
