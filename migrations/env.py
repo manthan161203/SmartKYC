@@ -8,7 +8,10 @@ from alembic import context
 
 from backend.config.config import settings
 from backend.models.base_model import Base
-from backend.models import base_model, document_model, document_type_model, gender_type_model, kyc_status_model, otp_model, otp_status_model, user_model, user_address_model
+from backend.models import (
+    base_model, document_model, document_type_model, gender_type_model,
+    kyc_status_model, otp_model, otp_status_model, user_model, user_address_model
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -26,22 +29,38 @@ def create_database_if_not_exists():
     """
     Ensures the database exists before running migrations.
     """
+
+    # Split the database URL into the root URL and the database name.
     db_url_parts = settings.DATABASE_URL.rsplit("/", 1)
-    db_root_url = db_url_parts[0] + "/"
+    db_root_url = db_url_parts[0] + "/"  # e.g., postgresql://user:password@host:port/
     db_name = db_url_parts[1]
 
+    # Create an engine for the root connection without specifying a database.
     root_engine = create_engine(db_root_url, isolation_level="AUTOCOMMIT")
 
     with root_engine.connect() as conn:
+        # --- MySQL-specific code (commented out) ---
+        # The following code was used for MySQL, which supports "SHOW DATABASES;"
         existing_databases = conn.execute(text("SHOW DATABASES;")).fetchall()
         existing_db_names = [db[0] for db in existing_databases]
-
         if db_name not in existing_db_names:
             logger.info(f"Database '{db_name}' not found. Creating it now...")
             conn.execute(text(f"CREATE DATABASE {db_name};"))
             logger.info(f"Database '{db_name}' created successfully!")
         else:
             logger.info(f"Database '{db_name}' already exists.")
+
+        # --- PostgreSQL-specific code ---
+        # Query PostgreSQL's catalog for existing databases.
+        # existing_databases = conn.execute(text("SELECT datname FROM pg_database;")).fetchall()
+        # existing_db_names = [db[0] for db in existing_databases]
+        # if db_name not in existing_db_names:
+        #     logger.info(f"Database '{db_name}' not found. Creating it now...")
+        #     # Note: PostgreSQL does not support CREATE DATABASE in a transaction block.
+        #     conn.execute(text(f"CREATE DATABASE {db_name}"))
+        #     logger.info(f"Database '{db_name}' created successfully!")
+        # else:
+        #     logger.info(f"Database '{db_name}' already exists.")
 
 def run_migrations_offline():
     """

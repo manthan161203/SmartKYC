@@ -42,9 +42,10 @@ def seed_reference_tables():
         # Seed DocumentType table
         if not session.execute(select(DocumentType)).scalars().first():
             doc_types = [
-                DocumentType(id=1, name="Aadhaar"),
-                DocumentType(id=2, name="PAN"),
-                DocumentType(id=3, name="Selfie")
+                DocumentType(id=1, name="aadhaar_front"),
+                DocumentType(id=2, name="aadhaar_back"),
+                DocumentType(id=3, name="pan"),
+                DocumentType(id=4, name="selfie")
             ]
             session.bulk_save_objects(doc_types)
         

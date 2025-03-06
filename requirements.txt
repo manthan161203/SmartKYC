@@ -151,6 +151,7 @@ preshed==3.0.9
 prompt_toolkit==3.0.50
 propcache==0.3.0
 protobuf==5.29.3
+psycopg2==2.9.10
 ptyprocess==0.7.0
 pure_eval==0.2.3
 pyarrow==19.0.1
