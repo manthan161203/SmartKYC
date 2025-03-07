@@ -16,48 +16,48 @@ logging.basicConfig(
 
 def build_prompt(ocr_json_str, side="front_aadhaar"):
     """
-    Build a prompt using the OCR JSON output.
-    The OCR JSON is expected to have keys: 'tesseract', 'easyocr', 'paddleocr'.
+    Build a prompt using the OCR JSON output. The OCR JSON is expected to have keys:
+    'tesseract', 'easyocr', 'paddleocr'. The values are concatenated together to form the combined OCR text.
     
     Options for side:
     - "front_aadhaar": Extract aadhaar, dob, gender, and name.
-    - "back_aadhaar": Extract the full address as one string.
+    - "back_aadhaar": Extract the full address.
     - "pan_card": Extract pan, name, father_name, and dob.
     
     If a field is missing, return null.
-    Return the result as a JSON string.
+    Return the prompt string.
     """
     ocr_data = json.loads(ocr_json_str)
     combined_text = " ".join(ocr_data.get(k, "") for k in ["tesseract", "easyocr", "paddleocr"])
     
     if side.lower() == "front_aadhaar":
         prompt = (
-            "Extract the following fields from the OCR output:\n"
-            "- aadhaar: three groups of 4 digits\n"
-            "- dob: earliest date in dd/mm/yyyy\n"
-            "- gender: 'MALE' or 'FEMALE'\n"
-            "- name: full name only character\n"
-            "If missing, use null. Return as JSON with keys: 'aadhaar', 'dob', 'gender', 'name'.\n\n"
+            "You are provided with OCR text extracted from the front side of an Aadhaar card. "
+            "Extract the following fields and return ONLY a JSON object (with no extra text):\n\n"
+            "  - \"aadhaar\": A valid Aadhaar number, formatted as three groups of 4 digits (e.g., \"1234 5678 9012\").\n"
+            "  - \"dob\": The earliest date found in the format dd/mm/yyyy. If multiple dates exist, select the earliest.\n"
+            "  - \"gender\": Either \"MALE\" or \"FEMALE\" (case-insensitive).\n"
+            "  - \"name\": The full name (only alphabetic characters and spaces).\n\n"
+            "If any field is missing, its value should be null.\n\n"
             "OCR Output:\n" + combined_text
         )
     elif side.lower() == "back_aadhaar":
         prompt = (
-            "Extract the full address as a single string from the OCR output below. "
-            "The address is located after 'Address:' on the back of an Aadhaar card. "
-            "Remove any OCR noise and meaningless words (such as garbled or spurious text) that do not contribute to a proper address. "
-            "Ensure that any Indian names or terms are correctly formatted. "
-            "Return the cleaned address as JSON with the key 'address'.\n\n"
+            "You are provided with OCR text extracted from the back side of an Aadhaar card. "
+            "Extract the full address as a single string. The address is located after the label 'Address:'. "
+            "Clean the text by removing any noise, garbled words, or extraneous characters. "
+            "Return ONLY a JSON object with a single key \"address\". If no valid address is found, set its value to null.\n\n"
             "OCR Output:\n" + combined_text
         )
-
     elif side.lower() == "pan_card":
         prompt = (
-            "Extract the following fields from the OCR output below:\n"
-            "- pan: a 10-character alphanumeric code (e.g., GQSPP8532A)\n"
-            "- name: full name\n"
-            "- father_name: father's full name\n"
-            "- dob: date of birth in dd/mm/yyyy format\n"
-            "If missing, return null. Return as JSON with keys: 'pan', 'name', 'father_name', 'dob'.\n\n"
+            "You are provided with OCR text extracted from a PAN card. "
+            "Extract the following fields and return ONLY a JSON object (with no extra text):\n\n"
+            "  - \"pan\": A valid PAN number (exactly 10 alphanumeric characters, e.g., \"ABCDE1234F\").\n"
+            "  - \"name\": The full name as printed on the PAN card.\n"
+            "  - \"father_name\": The full name of the father as printed on the PAN card.\n"
+            "  - \"dob\": The date of birth in dd/mm/yyyy format.\n\n"
+            "If any field is missing, set its value to null.\n\n"
             "OCR Output:\n" + combined_text
         )
     else:
@@ -85,7 +85,7 @@ def query_openai(prompt):
 
 def remove_markdown(json_text):
     """
-    Remove markdown formatting (i.e., triple backticks and optional "json" label)
+    Remove markdown formatting (triple backticks and optional "json" label)
     from the given text.
     """
     text = re.sub(r'^```(?:json)?\s*', '', json_text, flags=re.MULTILINE)
@@ -93,18 +93,19 @@ def remove_markdown(json_text):
     return text
 
 # Example usage:
-# ocr_json = process_image("/backend/images/front_manthan_aadhaar.jpg")
-# prompt_front = build_prompt(ocr_json, side="front_aadhaar")
+# Process image to get OCR JSON output (assumed to contain keys "tesseract", "easyocr", "paddleocr")
+# ocr_json_front = process_image("/backend/images/front_manthan_aadhaar.jpg")
+# prompt_front = build_prompt(ocr_json_front, side="front_aadhaar")
 # front_response = query_openai(prompt_front)
 # cleaned_front = remove_markdown(front_response)
 # print("Front Aadhaar Data:", cleaned_front)
-
+#
 # ocr_json_back = process_image("/backend/images/back_manthan_aadhaar.jpg")
 # prompt_back = build_prompt(ocr_json_back, side="back_aadhaar")
 # back_response = query_openai(prompt_back)
 # cleaned_back = remove_markdown(back_response)
 # print("Back Aadhaar Address:", cleaned_back)
-
+#
 # ocr_json_pan = process_image("/backend/images/pan_card.jpg")
 # prompt_pan = build_prompt(ocr_json_pan, side="pan_card")
 # pan_response = query_openai(prompt_pan)
