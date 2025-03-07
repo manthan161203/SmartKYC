@@ -1,4 +1,3 @@
-from time import timezone
 import jwt
 import datetime
 from typing import Optional

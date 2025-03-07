@@ -3,8 +3,6 @@ import numpy as np
 import re
 import json
 import logging
-from PIL import Image
-import pytesseract
 import easyocr
 from paddleocr import PaddleOCR
 
@@ -164,16 +162,6 @@ def add_border(image, border_size=150, color=[255, 255, 255]):
 
 # ---------- OCR Functions ----------
 
-def ocr_tesseract_image(img):
-    try:
-        rgb_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        pil_img = Image.fromarray(rgb_img)
-        text = pytesseract.image_to_string(pil_img, lang='eng+guj')
-        return clean_text(text)
-    except Exception as e:
-        logging.error("Error in ocr_tesseract_image: %s", e)
-        raise
-
 def ocr_easyocr_image(img):
     try:
         reader = easyocr.Reader(['en'])
@@ -230,7 +218,6 @@ def process_image(image_path):
         raise
 
     try:
-        tesseract_text = ocr_tesseract_image(final_img)
         easyocr_text = ocr_easyocr_image(final_img)
         paddleocr_text = ocr_paddleocr_image(final_img)
         logging.info("OCR processing completed.")
@@ -239,7 +226,6 @@ def process_image(image_path):
         raise
 
     result = {
-        "tesseract": tesseract_text,
         "easyocr": easyocr_text,
         "paddleocr": paddleocr_text
     }
