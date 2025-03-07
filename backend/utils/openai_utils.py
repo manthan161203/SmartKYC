@@ -33,10 +33,10 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
     if side.lower() == "front_aadhaar":
         prompt = (
             "Extract the following fields from the OCR output:\n"
-            "- aadhaar: three groups of 4 digits (no spaces)\n"
+            "- aadhaar: three groups of 4 digits\n"
             "- dob: earliest date in dd/mm/yyyy\n"
             "- gender: 'MALE' or 'FEMALE'\n"
-            "- name: full name\n"
+            "- name: full name only character\n"
             "If missing, use null. Return as JSON with keys: 'aadhaar', 'dob', 'gender', 'name'.\n\n"
             "OCR Output:\n" + combined_text
         )
