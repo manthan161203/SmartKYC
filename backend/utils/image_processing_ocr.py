@@ -1,3 +1,5 @@
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Disable GPU (Force CPU-only execution)
 import cv2
 import numpy as np
 import re
@@ -175,7 +177,7 @@ def ocr_easyocr_image(img):
 
 def ocr_paddleocr_image(img):
     try:
-        ocr_model = PaddleOCR(use_angle_cls=True, lang="en")
+        ocr_model = PaddleOCR(use_angle_cls=True, lang="en", use_gpu=False)
         result = ocr_model.ocr(img, cls=True)
         text = " ".join([line[1][0] for page in result for line in page])
         return clean_text(text)
@@ -228,6 +230,7 @@ def process_image(image_path):
     result = {
         "easyocr": easyocr_text,
         "paddleocr": paddleocr_text
+        
     }
     
     return json.dumps(result, indent=4)

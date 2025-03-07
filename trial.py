@@ -9,15 +9,15 @@
 
 
 
-# from backend.utils.image_processing_ocr import process_image
+from backend.utils.image_processing_ocr import process_image
 # from backend.utils.openai_utils import build_prompt, query_openai, remove_markdown
 
 # Example usage:
-# ocr_json = process_image("backend/images/front_lalit_aadhaar.jpg")
+ocr_json = process_image("backend/images/front_lalit_aadhaar.jpg")
 # prompt_front = build_prompt(ocr_json, side="front_aadhaar")
 # front_response = query_openai(prompt_front)
 # cleaned_front = remove_markdown(front_response)
-# print(ocr_json)
+print(ocr_json)
 # print("Front Aadhaar Data:", cleaned_front)
 
 # ocr_json_back = process_image("backend/images/back_lalit_aadhaar.jpg")
