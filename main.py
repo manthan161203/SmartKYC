@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.critical(f"❌ Critical error during startup: {e}")
         exit(1)
 
-    yield  # Hand over control to the application
+    yield
 
     logger.info("🛑 Shutting down Smart KYC application...")
 
@@ -57,7 +57,7 @@ app = FastAPI(lifespan=lifespan)
 # --------------------- CORS Middleware ---------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allow_origins,  # Use settings for flexibility
+    allow_origins=settings.allow_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -77,28 +77,13 @@ logging.info("Documents routes registered")
 # --------------------- API Endpoints ---------------------
 @app.get("/", tags=["Root"])
 async def read_root() -> Dict[str, str]:
-    """
-    Root endpoint to check if the Smart KYC API is running.
-
-    Returns:
-        Dict[str, str]: A simple status message.
-    """
     logger.info("📢 Root endpoint accessed.")
     return {"message": "🚀 Smart KYC API is running!"}
 
 @app.get("/health", tags=["Health"])
 async def health_check(db: Session = Depends(get_db)) -> Dict[str, str]:
-    """
-    Health check endpoint to verify database connectivity.
-
-    Args:
-        db (Session): Database session dependency.
-
-    Returns:
-        Dict[str, str]: Status of database connectivity.
-    """
     try:
-        db.execute(text("SELECT 1"))  # Simple DB test query
+        db.execute(text("SELECT 1"))
         logger.info("✅ Health check successful: Database is connected.")
         return {"status": "ok", "message": "Database is connected"}
     except Exception as e:
