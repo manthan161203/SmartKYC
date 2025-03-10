@@ -62,7 +62,7 @@ def upload_image_to_supabase(db: Session, file, file_name: str, user_id: str, do
     upload_response = supabase.storage.from_(bucket_name).upload(
         path=file_path,
         file=file_bytes,
-        file_options={"cache-control": "3600", "upsert": "false"}
+        file_options={"cache-control": "3600", "upsert": "true"}
     )
 
     if not upload_response:

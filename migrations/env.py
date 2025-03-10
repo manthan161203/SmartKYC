@@ -10,7 +10,7 @@ from backend.config.config import settings
 from backend.models.base_model import Base
 from backend.models import (
     base_model, document_model, document_type_model, gender_type_model,
-    kyc_status_model, otp_model, otp_status_model, user_model, user_address_model
+    kyc_status_model, otp_model, otp_status_model, user_model, user_address_model, document_details_model
 )
 
 # Configure logging

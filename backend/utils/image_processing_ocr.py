@@ -1,4 +1,6 @@
 import os
+
+import requests
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Disable GPU (Force CPU-only execution)
 import cv2
 import numpy as np
@@ -13,6 +15,18 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
+def download_image(image_url):
+    """Download the image from the given URL and return it as a numpy array."""
+    try:
+        response = requests.get(image_url, stream=True)
+        response.raise_for_status()  # Raise an error for failed requests
+        image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+        return cv2.imdecode(image_array, cv2.IMREAD_COLOR)  # Decode image
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error downloading image: {e}")
+        raise
+
 
 # ---------- Utility Function ----------
 
@@ -186,33 +200,24 @@ def ocr_paddleocr_image(img):
         raise
 
 # ---------- Main Processing Function ----------
-
-def process_image(image_path):
-    """
-    Process the image at 'image_path' and return a JSON-formatted dictionary
-    with OCR outputs from Tesseract, EasyOCR, and PaddleOCR.
-    """
+def process_image(image_url):
+    """Download and process the image for OCR."""
     try:
-        img = cv2.imread(image_path)
+        img = download_image(image_url)
         if img is None:
-            raise FileNotFoundError(f"Input image '{image_path}' not found or unable to read.")
-        logging.info("Loaded image: %s", image_path)
+            raise FileNotFoundError(f"Failed to download image from {image_url}")
+        logging.info("Successfully downloaded image: %s", image_url)
     except Exception as e:
         logging.error("Error loading image: %s", e)
         raise
 
     try:
-        # You can experiment with different pre-processing paths
-        inverted = invert_image(img)  # noqa: F841
-        rescaled = rescale_image(img)  # noqa: F841
+        # Apply pre-processing techniques
         im_bw = binarize_image(img)
         no_noise = noise_removal(im_bw)
-        eroded_image = thin_font(no_noise)
-        dilated_image = thick_font(eroded_image)
-        fixed = deskew(dilated_image)  # noqa: F841
-        borders_removed = remove_borders(no_noise)
-        image_with_border = add_border(borders_removed)  # noqa: F841
-        # Choose the final image for OCR based on testing (here we use the noise-removed image)
+        fixed = deskew(no_noise)  # noqa: F841
+
+        # Choose the final image for OCR
         final_img = no_noise
         logging.info("Image processing completed.")
     except Exception as e:
@@ -230,7 +235,6 @@ def process_image(image_path):
     result = {
         "easyocr": easyocr_text,
         "paddleocr": paddleocr_text
-        
     }
-    
+
     return json.dumps(result, indent=4)

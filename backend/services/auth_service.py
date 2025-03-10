@@ -8,7 +8,6 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from backend.config.config import settings
 from backend.models.user_model import User
 from backend.models.gender_type_model import GenderType
-from backend.models.otp_model import OTPModel
 from backend.schemas.auth_schema import ChangePasswordSchema, RegisterSchema
 from backend.schemas.otp_schema import VerifyOTPSchema
 from backend.utils.otp_email_utils import send_email

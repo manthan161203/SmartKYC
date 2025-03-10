@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from backend.models.base_model import Base
+from backend.models.document_details_model import DocumentDetails
 
 class Document(Base):
     """
@@ -20,3 +21,4 @@ class Document(Base):
     # Relationships
     user = relationship("User", back_populates="documents")
     document_type = relationship("DocumentType", back_populates="documents")
+    document_details = relationship("DocumentDetails", back_populates="document", cascade="all, delete-orphan")

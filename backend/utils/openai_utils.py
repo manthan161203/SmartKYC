@@ -30,7 +30,7 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
     ocr_data = json.loads(ocr_json_str)
     combined_text = " ".join(ocr_data.get(k, "") for k in ["tesseract", "easyocr", "paddleocr"])
     
-    if side.lower() == "front_aadhaar":
+    if side.lower() == "aadhaar_front":
         prompt = (
             "You are provided with OCR text extracted from the front side of an Aadhaar card. "
             "Extract the following fields and return ONLY a JSON object (with no extra text):\n\n"
@@ -41,7 +41,7 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
             "If any field is missing, its value should be null.\n\n"
             "OCR Output:\n" + combined_text
         )
-    elif side.lower() == "back_aadhaar":
+    elif side.lower() == "aadhaar_back":
         prompt = (
             "You are provided with OCR text extracted from the back side of an Aadhaar card. "
             "Extract the full address as a single string. The address is located after the label 'Address:'. "
@@ -49,7 +49,7 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
             "Return ONLY a JSON object with a single key \"address\". If no valid address is found, set its value to null.\n\n"
             "OCR Output:\n" + combined_text
         )
-    elif side.lower() == "pan_card":
+    elif side.lower() == "pan":
         prompt = (
             "You are provided with OCR text extracted from a PAN card. "
             "Extract the following fields and return ONLY a JSON object (with no extra text):\n\n"
