@@ -507,3 +507,83 @@
 2025-03-10 11:32:56,335 - INFO - ✅ Environment variables loaded successfully.
 2025-03-10 11:32:56,365 - INFO - ✅ Database engine created successfully.
 2025-03-10 11:33:09,586 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
+2025-03-11 10:02:39,280 - CRITICAL - ❌ Error loading environment variables: 2 validation errors for Settings
+ALEMBIC_DB_PASSWORD
+  Field required [type=missing, input_value={'DB_HOST': 'aws-0-us-wes..., 'db_schema': 'kyc_db'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 79, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for Settings
+ALEMBIC_DB_PASSWORD
+  Field required [type=missing, input_value={'DB_HOST': 'aws-0-us-wes..., 'db_schema': 'kyc_db'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-11 10:03:00,241 - CRITICAL - ❌ Error loading environment variables: 2 validation errors for Settings
+ALEMBIC_DB_PASSWORD
+  Field required [type=missing, input_value={'DB_HOST': 'aws-0-us-wes..., 'db_schema': 'kyc_db'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 79, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for Settings
+ALEMBIC_DB_PASSWORD
+  Field required [type=missing, input_value={'DB_HOST': 'aws-0-us-wes..., 'db_schema': 'kyc_db'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/missing
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-11 10:03:06,309 - CRITICAL - ❌ Error loading environment variables: 1 validation error for Settings
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 79, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-11 10:03:07,305 - CRITICAL - ❌ Error loading environment variables: 1 validation error for Settings
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 79, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Settings
+db_schema
+  Extra inputs are not permitted [type=extra_forbidden, input_value='kyc_db', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-11 10:03:25,280 - INFO - ✅ Environment variables loaded successfully.
+2025-03-11 10:03:25,326 - INFO - ✅ Database engine created successfully.
+2025-03-11 10:04:31,249 - INFO - ✅ Environment variables loaded successfully.
+2025-03-11 10:04:31,279 - INFO - ✅ Database engine created successfully.
+2025-03-11 10:10:44,739 - INFO - ✅ Environment variables loaded successfully.
+2025-03-11 10:10:44,779 - INFO - ✅ Database engine created successfully.
+2025-03-11 10:13:03,310 - INFO - ✅ Environment variables loaded successfully.
+2025-03-11 10:13:03,340 - INFO - ✅ Database engine created successfully.
