@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_NAME: str = "kyc_db"
     DB_PASSWORD: str
-    # ALEMBIC_DB_PASSWORD: str
+    ALEMBIC_DB_PASSWORD: str
     DB_SCHEMA: str
     # Email Configuration
     SENDER_MAIL: str
