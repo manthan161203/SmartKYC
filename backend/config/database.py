@@ -152,11 +152,6 @@ except Exception as e:
 # --------------------- Database Initialization ---------------------
 def init_db() -> bool:
 
-
-
-
-
-
     try:
         logger.info("🚀 Initializing Database...")
         Base.metadata.create_all(bind=engine)

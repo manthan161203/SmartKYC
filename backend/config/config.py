@@ -49,10 +49,7 @@ class Settings(BaseSettings):
     OPENAI_KEY: str
     
     # Cloudinary Configuration
-    CLOUDINARY_CLOUD_NAME: str
-    CLOUDINARY_API_KEY: str
-    CLOUDINARY_API_SECRET: str
-    
+    # CLOUDINARY_CLOUD_NAME: str
     # Supabase Configuration
     SUPABASE_URL: str
     SUPABASE_KEY: str
@@ -70,9 +67,9 @@ class Settings(BaseSettings):
         return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         # return f"postgresql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
-    @property
-    def CLOUDINARY_URL(self) -> str:
-        return f"cloudinary://{self.CLOUDINARY_API_KEY}:{self.CLOUDINARY_API_SECRET}@{self.CLOUDINARY_CLOUD_NAME}"
+    # @property
+    # def CLOUDINARY_URL(self) -> str:
+    #     return f"cloudinary://{self.CLOUDINARY_API_KEY}:{self.CLOUDINARY_API_SECRET}@{self.CLOUDINARY_CLOUD_NAME}"
 
 # --------------------- Load Settings ---------------------
 try:

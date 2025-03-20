@@ -609,3 +609,133 @@ DB_SCHEMA
 2025-03-20 17:09:17,415 - INFO - ✅ Environment variables loaded successfully.
 2025-03-20 17:09:17,455 - INFO - ✅ Database engine created successfully.
 2025-03-20 17:09:48,958 - INFO - ✅ Environment variables loaded successfully.
+2025-03-20 17:45:00,315 - CRITICAL - ❌ Error loading environment variables: 2 validation errors for Settings
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 76, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for Settings
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-20 17:45:17,738 - CRITICAL - ❌ Error loading environment variables: 2 validation errors for Settings
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 76, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 2 validation errors for Settings
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-20 17:45:21,495 - CRITICAL - ❌ Error loading environment variables: 3 validation errors for Settings
+cloudinary_cloud_name
+  Extra inputs are not permitted [type=extra_forbidden, input_value='dby5r8tle', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 76, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 3 validation errors for Settings
+cloudinary_cloud_name
+  Extra inputs are not permitted [type=extra_forbidden, input_value='dby5r8tle', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-20 17:45:27,669 - CRITICAL - ❌ Error loading environment variables: 3 validation errors for Settings
+cloudinary_cloud_name
+  Extra inputs are not permitted [type=extra_forbidden, input_value='dby5r8tle', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 76, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 3 validation errors for Settings
+cloudinary_cloud_name
+  Extra inputs are not permitted [type=extra_forbidden, input_value='dby5r8tle', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-20 17:45:51,145 - CRITICAL - ❌ Error loading environment variables: 3 validation errors for Settings
+cloudinary_cloud_name
+  Extra inputs are not permitted [type=extra_forbidden, input_value='dby5r8tle', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/backend/config/config.py", line 76, in <module>
+    settings = Settings()
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic_settings/main.py", line 176, in __init__
+    super().__init__(
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 3 validation errors for Settings
+cloudinary_cloud_name
+  Extra inputs are not permitted [type=extra_forbidden, input_value='dby5r8tle', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_key
+  Extra inputs are not permitted [type=extra_forbidden, input_value='581127442563273', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+cloudinary_api_secret
+  Extra inputs are not permitted [type=extra_forbidden, input_value='MhB1zO9LnpALz-eQ-pYOzFKV-jc', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-03-20 17:46:22,203 - INFO - ✅ Environment variables loaded successfully.
+2025-03-20 17:46:22,233 - INFO - ✅ Database engine created successfully.
+2025-03-20 17:48:56,884 - WARNING - (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/manthan/Documents/Manthan/Smart_KYC/kyc_env/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
