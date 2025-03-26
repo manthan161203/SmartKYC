@@ -31,6 +31,61 @@ const Profile = ({ isOpen, setIsOpen }) => {
     const [editMode, setEditMode] = useState(false);
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
+    const [selectedImage, setSelectedImage] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    const handleImageChange = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedImage(file);
+            await uploadProfilePhoto(file);
+        }
+    };
+
+    const uploadProfilePhoto = async (file) => {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append("file", file); // Backend expects `file` field
+
+        try {
+            const response = await api.post("/user/upload-profile-photo", formData, {
+                headers: {
+                    Authorization: `Bearer ${getAccessToken()}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            
+            console.log("Upload response:", response.data);
+            
+            // Update user's profile photo URL in state
+            toast.success("Profile photo updated!");
+
+            fetchUserProfile(); // Refresh profile
+
+        } catch (error) {
+            console.error("Upload failed:", error);
+            toast.error("Failed to upload photo.");
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const removeProfilePhoto = async () => {
+        setDeleting(true);
+        try {
+            await api.delete("/user/delete-profile-photo", {
+                headers: { Authorization: `Bearer ${getAccessToken()}` },
+            });
+            toast.success("Profile photo removed!");
+            fetchUserProfile(); // Refresh profile
+        } catch (error) {
+            console.error("Delete failed:", error);
+            toast.error("Failed to remove photo.");
+        } finally {
+            setDeleting(false);
+        }
+    };
 
     const fetchUserProfile = async () => {
         setLoading(true);
@@ -51,13 +106,13 @@ const Profile = ({ isOpen, setIsOpen }) => {
                 phone_number: response.data.phone_number || "",
                 dob: response.data.dob || "",
                 gender_id: response.data.gender_id || "",
-                profile_photo: response.data.profile_photo_url || "",
+                profile_photo: response.data.profile_photo || "",
                 address_line1: address.address_line1 || "",
                 address_line2: address.address_line2 || "",
                 city: address.city || "",
                 state: address.state || "",
                 country: address.country || "",
-                postal_code: address.postal_code || ""
+                postal_code: address.postal_code || "",
             });
         } catch (error) {
             console.error("Error fetching user profile:", error);
@@ -231,10 +286,17 @@ const Profile = ({ isOpen, setIsOpen }) => {
                     ) : user ? (
                         <>
                             {/* Profile Image */}
-                            <div className="flex items-center justify-center py-4">
-                                {user?.profile_photo_url ? (
+                            <div className="flex flex-col items-center justify-center py-4">
+                                {/* Profile Image */}
+                                {selectedImage ? (
                                     <img
-                                        src={user.profile_photo_url}
+                                        src={URL.createObjectURL(selectedImage)}
+                                        alt="Selected Profile"
+                                        className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-sm"
+                                    />
+                                ) : user?.profile_photo ? (
+                                    <img
+                                        src={`http://localhost:8000/uploads/${user.profile_photo}`}
                                         alt="Profile"
                                         className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-sm"
                                     />
@@ -244,6 +306,30 @@ const Profile = ({ isOpen, setIsOpen }) => {
                                         alt="Default Profile"
                                         className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-sm"
                                     />
+                                )}
+
+                                {/* Upload Photo */}
+                                {editMode && (
+                                    <label className="mt-3 cursor-pointer text-blue-600 text-sm font-medium hover:underline">
+                                        Change Photo
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageChange}
+                                        />
+                                    </label>
+                                )}
+
+                                {/* Remove Photo Button */}
+                                {user?.profile_photo && editMode && (
+                                    <button
+                                        onClick={removeProfilePhoto}
+                                        className="text-red-500 text-xs mt-2 underline"
+                                        disabled={deleting}
+                                    >
+                                        {deleting ? "Removing..." : "Remove Photo"}
+                                    </button>
                                 )}
                             </div>
 
@@ -430,7 +516,7 @@ const Profile = ({ isOpen, setIsOpen }) => {
                                         {getKYCStatus(user.kyc_status_id).text}
                                     </div>
                                 </div>
-
+                                
                                 {/* Address Section */}
                                 <div className="border-t pt-4">
                                     <SheetHeader>
@@ -504,7 +590,7 @@ const Profile = ({ isOpen, setIsOpen }) => {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                                  </div>
 
                             {/* Edit / Save Buttons */}
                             <div className="flex justify-center mt-6 pb-6">

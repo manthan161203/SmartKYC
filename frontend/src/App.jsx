@@ -12,6 +12,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import VerifyOTPPopup from "@/components/auth/VerifyOTPPopup";
 import Profile from "./components/ui/Profile";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
+import DocumentUploadPage from "@/pages/DocumentUploadPage";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/change-password" element={<ChangePasswordPage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/upload-documents" element={<DocumentUploadPage />} />
         </Route>
         {/* OTP verification route */}
         <Route element={<ProtectedOTPRoute />}>
