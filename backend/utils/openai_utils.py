@@ -28,7 +28,7 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
     Return the prompt string.
     """
     ocr_data = json.loads(ocr_json_str)
-    combined_text = " ".join(ocr_data.get(k, "") for k in ["tesseract", "easyocr", "paddleocr"])
+    combined_text = " ".join(ocr_data.get(k, "") for k in ["easyocr"])
     
     if side.lower() == "aadhaar_front":
         prompt = (

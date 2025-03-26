@@ -45,7 +45,8 @@ def seed_reference_tables():
                 DocumentType(id=1, name="aadhaar_front"),
                 DocumentType(id=2, name="aadhaar_back"),
                 DocumentType(id=3, name="pan"),
-                DocumentType(id=4, name="selfie")
+                DocumentType(id=4, name="selfie"),
+                DocumentType(id=5, name="profile_photo")
             ]
             session.bulk_save_objects(doc_types)
         

@@ -1,6 +1,8 @@
 import cv2
 import json
+import matplotlib
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')  # Use a non-GUI backend
 from deepface import DeepFace
 from typing import List, Dict, Union, Optional
 import math

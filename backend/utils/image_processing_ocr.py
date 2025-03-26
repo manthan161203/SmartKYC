@@ -16,15 +16,22 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def download_image(image_url):
-    """Download the image from the given URL and return it as a numpy array."""
-    try:
-        response = requests.get(image_url, stream=True)
-        response.raise_for_status()  # Raise an error for failed requests
-        image_array = np.asarray(bytearray(response.content), dtype=np.uint8)
-        return cv2.imdecode(image_array, cv2.IMREAD_COLOR)  # Decode image
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error downloading image: {e}")
+def download_image(image_path):
+    if os.path.exists(image_path):  # Check if it's a local file
+        img = cv2.imread(image_path)
+        if img is None:
+            raise ValueError(f"Could not load local image: {image_path}")
+        return img
+    elif image_path.startswith(("http://", "https://")):  # Check if it's a URL
+        response = requests.get(image_path, stream=True)
+        if response.status_code == 200:
+            img_array = np.asarray(bytearray(response.content), dtype=np.uint8)
+            img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+            return img
+        else:
+            raise ValueError(f"Failed to download image from {image_path}")
+    else:
+        raise ValueError(f"Invalid image path: {image_path}")
         raise
 
 
@@ -226,15 +233,15 @@ def process_image(image_url):
 
     try:
         easyocr_text = ocr_easyocr_image(final_img)
-        paddleocr_text = ocr_paddleocr_image(final_img)
+        # paddleocr_text = ocr_paddleocr_image(final_img)
         logging.info("OCR processing completed.")
     except Exception as e:
         logging.error("Error during OCR processing: %s", e)
         raise
 
     result = {
-        "easyocr": easyocr_text,
-        "paddleocr": paddleocr_text
+        "easyocr": easyocr_text
+        # "paddleocr": paddleocr_text
     }
 
     return json.dumps(result, indent=4)
