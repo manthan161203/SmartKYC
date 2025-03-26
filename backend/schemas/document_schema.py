@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Dict
+from typing import Optional, Dict, Any
 
 class DocumentUploadRequest(BaseModel):
     user_id: int
@@ -15,3 +15,9 @@ class DocumentResponse(BaseModel):
 class DocumentProcessingResponse(BaseModel):
     document_id: int
     extracted_data: Dict
+
+
+class DocumentResponseSchema(BaseModel):
+    message: str
+    document_id: int
+    extracted_data: Dict[str, Any]

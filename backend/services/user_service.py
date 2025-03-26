@@ -1,8 +1,12 @@
+import os
+import shutil
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, UploadFile
 from backend.models.user_model import User
 from backend.models.user_address_model import UserAddress
 from backend.schemas.user_schema import EditUserSchema
+
+UPLOAD_FOLDER = "uploaded_files"
 
 class UserService:
     @staticmethod
@@ -56,3 +60,67 @@ class UserService:
         db.refresh(user)
         
         return user
+
+    @staticmethod
+    async def upload_or_edit_profile_photo(db: Session, email: str, file: UploadFile):
+        """ Upload or update (edit) the user's profile photo """
+
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Ensure user folder exists
+        user_folder = os.path.join(UPLOAD_FOLDER, str(user.id))
+        os.makedirs(user_folder, exist_ok=True)
+
+        # Get file extension and validate
+        file_ext = file.filename.split(".")[-1].lower()
+        if file_ext not in ["jpg", "jpeg", "png", "gif"]:
+            raise HTTPException(status_code=400, detail="Invalid file format. Only JPG, JPEG, PNG, and GIF allowed.")
+
+        # Define new file path (relative)
+        new_file_name = f"profile_photo.{file_ext}"
+        new_file_path = os.path.join(user_folder, new_file_name)
+
+        # Delete old profile photo if it exists
+        if user.profile_photo:
+            old_photo_path = os.path.join(UPLOAD_FOLDER, user.profile_photo)
+            if os.path.exists(old_photo_path):
+                os.remove(old_photo_path)
+
+        # Save new file
+        with open(new_file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Update database with relative path
+        relative_path = f"{str(user.id)}/{new_file_name}"  # Store "1/profile_photo.jpg"
+        user.profile_photo = relative_path
+        db.commit()
+        db.refresh(user)
+
+        # Return full URL for frontend
+        full_photo_url = f"http://localhost:8000/uploads/{relative_path}"
+        return {"message": "Profile photo uploaded/updated successfully", "photo_url": full_photo_url}
+
+    @staticmethod
+    async def delete_profile_photo(db: Session, email: str):
+        """ Delete the user's profile photo """
+
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if not user.profile_photo:
+            raise HTTPException(status_code=400, detail="No profile photo found.")
+
+        # Remove file from system
+        photo_path = os.path.join(UPLOAD_FOLDER, user.profile_photo)
+        if os.path.exists(photo_path):
+            os.remove(photo_path)
+
+        # Update database
+        user.profile_photo = None
+        db.commit()
+        db.refresh(user)
+
+        return {"message": "Profile photo deleted successfully"}
