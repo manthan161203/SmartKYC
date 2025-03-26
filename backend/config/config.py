@@ -60,13 +60,13 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
-        # return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        return "mysql://root:KHMcnosOYCjqPzfYXAjUoPgbEJKFJrjY@caboose.proxy.rlwy.net:34393/railway"
+        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        # return "mysql://root:KHMcnosOYCjqPzfYXAjUoPgbEJKFJrjY@caboose.proxy.rlwy.net:34393/railway"
         # return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     @property
     def ALEMBIC_DATABASE_URL(self) -> str:
-        # return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        return "mysql://root:KHMcnosOYCjqPzfYXAjUoPgbEJKFJrjY@caboose.proxy.rlwy.net:34393/railway"
+        return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        # return "mysql://root:KHMcnosOYCjqPzfYXAjUoPgbEJKFJrjY@caboose.proxy.rlwy.net:34393/railway"
         # return f"postgresql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     # @property
