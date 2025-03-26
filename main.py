@@ -1,6 +1,8 @@
 import logging
 from contextlib import asynccontextmanager
+import os
 from fastapi import Depends, FastAPI
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import text
 from backend.config.database import init_db, get_db
@@ -9,6 +11,10 @@ from backend.utils.seed_data import seed_reference_tables
 from backend.routes.auth_route import router as auth_router
 from backend.routes.user_route import router as user_router
 from backend.routes.document_route import router as document_router
+from backend.routes.document_store_and_process_route import router as document_store_and_process_router
+from backend.routes.extract_details_router import router as extract_details_router
+from backend.routes.verify_document_route import router as verify_document_router
+from backend.routes.face_verification_route import router as face_verification_router
 from fastapi.middleware.cors import CORSMiddleware
 from backend.config.config import settings
 from typing import AsyncGenerator, Dict
@@ -73,6 +79,28 @@ logger.info("👤 User routes registered (authentication required).")
 
 app.include_router(document_router)
 logging.info("Documents routes registered")
+
+app.include_router(document_store_and_process_router, dependencies=[Depends(get_current_user)])
+logger.info("📑 Document store and processing routes registered (authentication required)")
+
+# ✅ Add Extract Details Router
+app.include_router(extract_details_router, dependencies=[Depends(get_current_user)])
+logger.info("📄 Extract Details routes registered (authentication required).")
+
+app.include_router(verify_document_router, dependencies=[Depends(get_current_user)])
+logger.info("✅ Document verification routes registered (authentication required).")    
+
+app.include_router(face_verification_router, dependencies=[Depends(get_current_user)])
+logger.info("📷 Face Verification routes registered (authentication required).")
+
+
+# --------------------- Serve Static Files ---------------------
+UPLOAD_FOLDER = "uploaded_files"
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)  # Ensure the folder exists
+
+app.mount("/uploads", StaticFiles(directory=UPLOAD_FOLDER), name="uploads")
+logger.info("📂 Static file serving enabled for uploaded files.")
 
 # --------------------- API Endpoints ---------------------
 @app.get("/", tags=["Root"])
