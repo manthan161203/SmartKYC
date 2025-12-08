@@ -822,3 +822,9 @@ AttributeError: module 'bcrypt' has no attribute '__about__'
 2025-04-02 13:55:39,619 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
 2025-04-02 13:56:34,373 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
 2025-04-02 13:57:08,638 - WARNING - Neither CUDA nor MPS are available - defaulting to CPU. Note: This module is much faster with a GPU.
+2025-09-24 12:29:52,592 - INFO - ✅ Environment variables loaded successfully.
+2025-09-24 12:29:52,637 - INFO - ✅ Database engine created successfully.
+2025-09-24 12:30:01,124 - CRITICAL - ❌ Database Initialization Failed: (pymysql.err.OperationalError) (1045, "Access denied for user 'root'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 12:30:01,125 - CRITICAL - ❌ Critical error during startup: (pymysql.err.OperationalError) (1045, "Access denied for user 'root'@'localhost' (using password: YES)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
