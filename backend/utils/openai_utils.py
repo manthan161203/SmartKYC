@@ -1,12 +1,9 @@
 import json
 import logging
 import re
-from openai import OpenAI
+import requests
 from backend.config.config import settings
 from backend.utils.image_processing_ocr import process_image
-
-# Initialize OpenAI client using your settings
-client = OpenAI(api_key=settings.OPENAI_KEY)
 
 logging.basicConfig(
     filename="processing.log",
@@ -66,21 +63,40 @@ def build_prompt(ocr_json_str, side="front_aadhaar"):
 
 def query_openai(prompt):
     """
-    Query OpenAI's Chat API using the given prompt and return the response text.
+    Query Gemini API using the given prompt and return the response text.
     """
     try:
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.2,
-            max_tokens=250
+        if not settings.GEMINI_KEY:
+            raise ValueError("GEMINI_KEY is not configured. Set it in .env to enable document extraction.")
+
+        model = "gemini-1.5-flash"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "temperature": 0.2,
+                "maxOutputTokens": 250
+            }
+        }
+        response = requests.post(
+            url,
+            params={"key": settings.GEMINI_KEY},
+            json=payload,
+            timeout=60
         )
-        return response.choices[0].message.content
+        response.raise_for_status()
+        data = response.json()
+        text = (
+            data.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [{}])[0]
+            .get("text")
+        )
+        if not text:
+            raise ValueError(f"Unexpected Gemini response: {data}")
+        return text
     except Exception as e:
-        logging.error("Error querying OpenAI: %s", e)
+        logging.error("Error querying Gemini: %s", e)
         raise
 
 def remove_markdown(json_text):

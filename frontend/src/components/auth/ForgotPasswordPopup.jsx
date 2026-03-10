@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 export function ForgotPasswordPopup({ isOpen, onClose }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,7 @@ export function ForgotPasswordPopup({ isOpen, onClose }) {
 
     setLoading(true);
     try {
-      await axios.post("http://localhost:8000/auth/forgot-password", { email });
+      await axios.post(`${API_BASE_URL}/auth/forgot-password`, { email });
       toast.success("Password reset link sent! Check your email.");
       onClose();
     } catch (err) {

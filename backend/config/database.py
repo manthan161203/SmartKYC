@@ -118,7 +118,7 @@
 
 
 import logging
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, Session
 from backend.config.config import settings
 from backend.models.base_model import Base
@@ -141,8 +141,19 @@ logger = logging.getLogger(__name__)
 
 # --------------------- Database Connection ---------------------
 try:
+    is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+    engine = create_engine(
+        settings.DATABASE_URL,
+        future=True,
+        connect_args={"check_same_thread": False} if is_sqlite else {},
+    )
+    if is_sqlite:
+        @event.listens_for(engine, "connect")
+        def _enable_sqlite_fk(dbapi_connection, _connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
 
-    engine = create_engine(settings.DATABASE_URL, future=True)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     logger.info("✅ Database engine created successfully.")
 except Exception as e:

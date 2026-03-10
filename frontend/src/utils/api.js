@@ -3,7 +3,7 @@ import { getAccessToken } from "@/utils/getAccessToken"; // ✅ Reads token from
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
 
-const API_BASE_URL = "http://localhost:8000"; // Update if needed
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 // Function to check if the token is expired
 const isTokenExpired = (token) => {

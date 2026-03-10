@@ -14,7 +14,7 @@ async def upload_document(
     db: Session = Depends(get_db)
 ):
     """
-    Uploads a document to Supabase and stores the link in the database.
+    Uploads a document to local storage and stores the path in the database.
     """
     request = DocumentUploadRequest(user_id=user_id, document_type_id=document_type_id)
     document = upload_user_document(db, request, file.file, file.filename)

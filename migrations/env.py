@@ -29,6 +29,9 @@ def create_database_if_not_exists():
     """
     Ensures the database exists before running migrations.
     """
+    if settings.DATABASE_URL.startswith("sqlite"):
+        logger.info("SQLite detected; database file will be created automatically if missing.")
+        return
 
     # Split the database URL into the root URL and the database name.
     db_url_parts = settings.DATABASE_URL.rsplit("/", 1)

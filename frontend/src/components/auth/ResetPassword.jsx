@@ -11,6 +11,8 @@ import PasswordStrengthBar from "react-password-strength-bar";
 import { z } from "zod";
 import "react-toastify/dist/ReactToastify.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 // Define password validation schema
 const passwordSchema = z
   .string()
@@ -56,7 +58,7 @@ export function ResetPassword() {
 
     setTimeout(async () => {
       try {
-        await axios.post("http://localhost:8000/auth/reset-password", {
+        await axios.post(`${API_BASE_URL}/auth/reset-password`, {
           token,
           new_password: password,
           confirm_new_password: confirmPassword,

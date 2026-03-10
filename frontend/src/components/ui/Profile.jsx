@@ -19,6 +19,8 @@ import { Calendar } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const Profile = ({ isOpen, setIsOpen }) => {
     const [user, setUser] = useState(null);
     // formData holds the editable fields (including address fields mapped to top-level keys)
@@ -296,7 +298,7 @@ const Profile = ({ isOpen, setIsOpen }) => {
                                     />
                                 ) : user?.profile_photo ? (
                                     <img
-                                        src={`http://localhost:8000/uploads/${user.profile_photo}`}
+                                        src={`${API_BASE_URL}/uploads/${user.profile_photo}`}
                                         alt="Profile"
                                         className="w-24 h-24 rounded-full object-cover border border-gray-300 shadow-sm"
                                     />

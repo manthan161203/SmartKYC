@@ -10,6 +10,8 @@ import { ForgotPasswordPopup } from "@/components/auth/ForgotPasswordPopup";
 import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 export function LoginForm() {
   const navigate = useNavigate();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -27,7 +29,7 @@ export function LoginForm() {
       formData.append("username", username);
       formData.append("password", password);
 
-      const response = await axios.post("http://localhost:8000/auth/login", formData, {
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

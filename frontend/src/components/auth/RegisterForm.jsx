@@ -14,6 +14,7 @@ import { ArrowLeft, Eye, EyeOff, Loader2 } from "lucide-react"; // Import Loader
 import PasswordStrengthBar from "react-password-strength-bar";
 
 const nameRegex = /^[A-Za-z]+$/;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const registerSchema = z.object({
   first_name: z.string()
@@ -73,7 +74,7 @@ export function RegisterForm() {
 
     try {
       const fullPhoneNumber = `+91${phoneNumber}`;
-      await axios.post("http://localhost:8000/auth/register", { ...data, full_name, phone_number: fullPhoneNumber });
+      await axios.post(`${API_BASE_URL}/auth/register`, { ...data, full_name, phone_number: fullPhoneNumber });
 
       toast.success("Registration Successful!", { position: "top-right" });
 

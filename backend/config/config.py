@@ -1,5 +1,7 @@
 import logging
+import os
 import secrets
+from typing import Optional
 from pydantic_settings import BaseSettings
 
 # --------------------- Logging Configuration ---------------------
@@ -16,12 +18,14 @@ logger = logging.getLogger(__name__)
 class Settings(BaseSettings):
 
     # Database Configuration
-    DB_HOST: str
-    DB_PORT: int
-    DB_USER: str
+    DB_ENGINE: str = "sqlite"  # Supported: sqlite, mysql, postgresql
+    SQLITE_PATH: str = "smart_kyc.db"
+    DB_HOST: Optional[str] = None
+    DB_PORT: Optional[int] = None
+    DB_USER: Optional[str] = None
     DB_NAME: str = "kyc_db"
-    DB_PASSWORD: str
-    ALEMBIC_DB_PASSWORD: str
+    DB_PASSWORD: Optional[str] = None
+    ALEMBIC_DB_PASSWORD: Optional[str] = None
     # DB_SCHEMA: str
     # Email Configuration
     SENDER_MAIL: str
@@ -45,14 +49,15 @@ class Settings(BaseSettings):
     # CORS Configuration
     allow_origins: list[str] = ["*"]
     
-    # OPENAI Configuration
-    OPENAI_KEY: str
+    # LLM Configuration
+    OPENAI_KEY: str = ""
+    GEMINI_KEY: str = ""
     
     # Cloudinary Configuration
     # CLOUDINARY_CLOUD_NAME: str
-    # Supabase Configuration
-    SUPABASE_URL: str
-    SUPABASE_KEY: str
+    # Legacy cloud storage configuration (optional for local mode)
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""
     
     class Config:
         env_file = ".env"
@@ -60,14 +65,28 @@ class Settings(BaseSettings):
 
     @property
     def DATABASE_URL(self) -> str:
-        return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        # return "mysql://root:KHMcnosOYCjqPzfYXAjUoPgbEJKFJrjY@caboose.proxy.rlwy.net:34393/railway"
-        # return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        engine = self.DB_ENGINE.lower()
+        if engine == "sqlite":
+            db_path = self.SQLITE_PATH
+            if not os.path.isabs(db_path):
+                db_path = os.path.abspath(db_path)
+            return f"sqlite:///{db_path}"
+        if engine == "mysql":
+            return f"mysql+pymysql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        if engine in {"postgresql", "postgres"}:
+            return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        raise ValueError(f"Unsupported DB_ENGINE '{self.DB_ENGINE}'")
+
     @property
     def ALEMBIC_DATABASE_URL(self) -> str:
-        return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
-        # return "mysql://root:KHMcnosOYCjqPzfYXAjUoPgbEJKFJrjY@caboose.proxy.rlwy.net:34393/railway"
-        # return f"postgresql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        engine = self.DB_ENGINE.lower()
+        if engine == "sqlite":
+            return self.DATABASE_URL
+        if engine == "mysql":
+            return f"mysql+pymysql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        if engine in {"postgresql", "postgres"}:
+            return f"postgresql://{self.DB_USER}:{self.ALEMBIC_DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        raise ValueError(f"Unsupported DB_ENGINE '{self.DB_ENGINE}'")
 
     # @property
     # def CLOUDINARY_URL(self) -> str:
